@@ -24,7 +24,7 @@ const DarkMode = (props: DarkModeProps) => {
     )),
   );
   return (
-    <LazySpace gap={16}>
+    <LazySpace gap={16} justify="between">
       <LazyLabel>暗色模式</LazyLabel>
 
       <LazySpace gap={8}>{items()}</LazySpace>

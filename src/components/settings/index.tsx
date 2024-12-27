@@ -94,7 +94,7 @@ const Settings = () => {
       onClose={() => { }}
       maskClosable={false}
     >
-      <LazyFlex direction="vertical" gap={8} style={{ "min-width": "400px" }}>
+      <LazyFlex direction="vertical" gap={16} style={{ "min-width": "400px" }}>
         <Transparent
           enabled={!!lsarConfig()?.transparent}
           onSwitch={async (enabled) => {
@@ -124,7 +124,7 @@ const Settings = () => {
           }
         />
 
-        <LazySpace>
+        <LazySpace justify="between">
           <LazyLabel>播放器绝对路径</LazyLabel>
 
           <Show when={lsarConfig()?.player.path}>
