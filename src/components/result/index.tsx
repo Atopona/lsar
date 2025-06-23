@@ -39,7 +39,7 @@ const Result = (props: ParsedResult) => {
     // 解析出来的链接只能访问一次，访问后即删除
     removeLink(index);
 
-    await insertHistory({
+    const historyItem = {
       id: 0,
       platform: props.platform,
       anchor: props.anchor,
@@ -47,7 +47,9 @@ const Result = (props: ParsedResult) => {
       category: props.category,
       last_title: props.title,
       last_play_time: new Date(),
-    });
+    };
+
+    await insertHistory(historyItem);
     refetchHistoryItems();
   };
 

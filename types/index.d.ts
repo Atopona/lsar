@@ -1,4 +1,4 @@
-type Platform = "douyu" | "huya" | "bilibili" | "douyin";
+type Platform = "douyu" | "huya" | "bilibili" | "douyin" | "bigo";
 
 interface ParsedResult {
   platform: Platform;

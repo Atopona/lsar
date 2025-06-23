@@ -1,3 +1,4 @@
+mod bigo;
 mod bilibili;
 mod douyin;
 mod douyu;
@@ -7,6 +8,7 @@ mod time;
 
 use serde::Serialize;
 
+pub use self::bigo::parse_bigo;
 pub use self::bilibili::parse_bilibili;
 pub use self::douyin::parse_douyin;
 pub use self::douyu::parse_douyu;

@@ -7,6 +7,7 @@ pub(crate) enum Platform {
     Huya,
     Douyin,
     Bilibili,
+    Bigo,
 }
 
 impl Platform {
@@ -16,6 +17,7 @@ impl Platform {
             Platform::Huya => 1,
             Platform::Douyin => 2,
             Platform::Bilibili => 3,
+            Platform::Bigo => 4,
         }
     }
 
@@ -33,6 +35,7 @@ impl TryFrom<i64> for Platform {
             1 => Ok(Platform::Huya),
             2 => Ok(Platform::Douyin),
             3 => Ok(Platform::Bilibili),
+            4 => Ok(Platform::Bigo),
             _ => Err("Invalid platform value"),
         }
     }
@@ -45,6 +48,7 @@ impl From<Platform> for &'static str {
             Platform::Huya => "huya",
             Platform::Douyin => "douyin",
             Platform::Bilibili => "bilibili",
+            Platform::Bigo => "bigo",
         }
     }
 }
@@ -56,6 +60,7 @@ impl From<&Platform> for &'static str {
             Platform::Huya => "huya",
             Platform::Douyin => "douyin",
             Platform::Bilibili => "bilibili",
+            Platform::Bigo => "bigo",
         }
     }
 }

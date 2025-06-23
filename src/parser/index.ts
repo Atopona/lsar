@@ -1,6 +1,7 @@
 import { error } from "~/command";
 import bilibili from "./bilibili";
 import douyin from "./douyin";
+import bigo from "./bigo";
 import douyu from "./douyu";
 import huya from "./huya";
 import type LiveStreamParser from "./base";
@@ -30,6 +31,11 @@ export const platforms = {
     roomBaseURL: "https://live.douyin.com/",
     parser: douyin,
   },
+  bigo: {
+    label: "Bigo",
+    roomBaseURL: "https://www.bigo.tv/cn/",
+    parser: bigo,
+  },
 } as const;
 
 export const handleParsingError = (platform: Platform, e: unknown): Error => {
@@ -43,7 +49,7 @@ export const handleParsingError = (platform: Platform, e: unknown): Error => {
       return new Error("解码响应失败");
     case "http error: Other":
       return new Error(
-        "其他网络错误，请将日志上传到 https://github.com/alley-rs/lsar/issues",
+        "其他网络错误，请将日志上传到 https://github.com/alley-rs/lsar/issues"
       );
     default:
       error(platform, errorMessage);
@@ -57,7 +63,7 @@ export const parse = async (
   config: Config,
   setShowSettings: Setter<boolean>,
   setToast: AppContext[1]["setToast"],
-  setParsedResult: AppContext[3]["setParsedResult"],
+  setParsedResult: AppContext[3]["setParsedResult"]
 ) => {
   // 解析前先清空原有的解析结果
   setParsedResult(null);
