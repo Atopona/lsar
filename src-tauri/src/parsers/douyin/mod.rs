@@ -5,19 +5,19 @@ use reqwest::header::{COOKIE, UPGRADE_INSECURE_REQUESTS};
 use serde_json::Value;
 
 use crate::error::{LsarResult, RoomStateError};
-use crate::parser::ParsedResult;
+use crate::network::http::Client;
+use crate::parsers::ParsedResult;
 use crate::platform::Platform;
 
 use self::models::{Resolution, RoomInfo};
 use self::utils::{get_ac_nonce, get_ttwid};
 
-use super::http_client::HttpClient;
 use super::Parser;
 
 pub struct DouyinParser {
     room_id: u64,
     room_url: String,
-    client: HttpClient,
+    client: Client,
 }
 
 impl DouyinParser {
@@ -25,7 +25,7 @@ impl DouyinParser {
         DouyinParser {
             room_id,
             room_url: format!("https://live.douyin.com/{}", room_id),
-            client: HttpClient::new(),
+            client: Client::new(),
         }
     }
 

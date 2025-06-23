@@ -1,8 +1,9 @@
 use regex::Regex;
 
-use crate::{error::LsarResult, parser::http_client::HttpClient};
+use crate::error::LsarResult;
+use crate::network::http::Client;
 
-pub async fn get_set_cookie(client: &HttpClient, url: &str) -> LsarResult<String> {
+pub async fn get_set_cookie(client: &Client, url: &str) -> LsarResult<String> {
     trace!("Entering get_set_cookie function");
     let resp = client.get(url).await?;
     let cookies = resp
@@ -19,7 +20,7 @@ pub async fn get_set_cookie(client: &HttpClient, url: &str) -> LsarResult<String
     Ok(cookies)
 }
 
-pub async fn get_ac_nonce(client: &HttpClient, url: &str) -> LsarResult<String> {
+pub async fn get_ac_nonce(client: &Client, url: &str) -> LsarResult<String> {
     trace!("Entering get_ac_nonce function");
     let cookies = get_set_cookie(client, url).await?;
 
@@ -42,7 +43,7 @@ pub async fn get_ac_nonce(client: &HttpClient, url: &str) -> LsarResult<String> 
     Ok(ac_nonce)
 }
 
-pub async fn get_ttwid(client: &HttpClient, url: &str) -> LsarResult<String> {
+pub async fn get_ttwid(client: &Client, url: &str) -> LsarResult<String> {
     trace!("Entering get_ttwid function");
     let cookies = get_set_cookie(client, url).await?;
     let re = Regex::new(r"ttwid=(.*?);")?;

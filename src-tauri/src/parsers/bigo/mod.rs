@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 
 use crate::error::LsarResult;
-use crate::parser::http_client::HttpClient;
-use crate::parser::{ParsedResult, Parser};
+use crate::network::http::Client;
+use crate::parsers::{ParsedResult, Parser};
 use crate::platform::Platform;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -27,14 +27,14 @@ struct Response {
 
 pub struct BigoParser {
     room_id: u64,
-    http_client: HttpClient,
+    http_client: Client,
 }
 
 impl BigoParser {
     fn new(room_id: u64) -> Self {
         Self {
             room_id,
-            http_client: HttpClient::new(),
+            http_client: Client::new(),
         }
     }
 

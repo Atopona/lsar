@@ -2,7 +2,7 @@ use regex::Regex;
 
 use super::models::RoomInfo;
 use crate::error::{LsarResult, MissKeyFieldError, RoomStateError};
-use crate::parser::ParsedResult;
+use crate::parsers::ParsedResult;
 use crate::platform::Platform;
 
 pub struct StreamInfoParser {}

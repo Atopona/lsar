@@ -14,14 +14,15 @@ use self::html_parser::HtmlParser;
 use self::login_request::LoginRequest;
 use self::uuid::UuidGenerator;
 
+use crate::network::http::Client;
+use crate::utils::now;
 use crate::{
     error::{LsarError, LsarResult, MissKeyFieldError, RoomStateError},
-    parser::time::now,
     platform::Platform,
     utils::md5,
 };
 
-use super::{http_client::HttpClient, ParsedResult, Parser};
+use super::{ParsedResult, Parser};
 
 use self::models::{BaseSteamInfo, CacheProfile};
 
@@ -30,12 +31,12 @@ const BASE_URL: &str = "https://m.huya.com/";
 struct HuyaParser {
     room_id: Option<u64>,
     page_url: String,
-    client: HttpClient,
+    client: Client,
 }
 
 impl HuyaParser {
     fn new(room_id: Option<u64>, page_url: String) -> Self {
-        let mut client = HttpClient::new();
+        let mut client = Client::new();
         client.insert_header(USER_AGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36").unwrap();
 
         HuyaParser {

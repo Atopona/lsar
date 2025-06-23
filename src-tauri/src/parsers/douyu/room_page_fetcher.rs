@@ -1,11 +1,12 @@
-use crate::{error::LsarResult, parser::http_client::HttpClient};
+use crate::error::LsarResult;
+use crate::network::http::Client;
 
 pub struct RoomPageFetcher {
-    http_client: HttpClient,
+    http_client: Client,
 }
 
 impl RoomPageFetcher {
-    pub fn new(http_client: HttpClient) -> Self {
+    pub fn new(http_client: Client) -> Self {
         RoomPageFetcher { http_client }
     }
 

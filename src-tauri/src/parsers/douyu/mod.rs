@@ -3,7 +3,7 @@ use tauri::AppHandle;
 
 use crate::error::LsarResult;
 use crate::eval::{EvalChannel, EvalSender};
-use crate::parser::{ParsedResult, Parser};
+use crate::parsers::{ParsedResult, Parser};
 
 mod constants;
 mod models;
@@ -18,12 +18,12 @@ use room_page_fetcher::RoomPageFetcher;
 use signature_generator::SignatureGenerator;
 use stream_info_parser::StreamInfoParser;
 
-use super::http_client::HttpClient;
+use crate::network::http::Client;
 
 pub struct DouyuParser {
     room_id: u64,
     final_room_id: u64,
-    http_client: HttpClient,
+    http_client: Client,
     room_page_fetcher: RoomPageFetcher,
     signature_generator: SignatureGenerator,
     room_info_fetcher: RoomInfoFetcher,
@@ -32,7 +32,7 @@ pub struct DouyuParser {
 
 impl DouyuParser {
     pub fn new(room_id: u64, eval_channel_sender: EvalSender, app_handle: AppHandle) -> Self {
-        let http_client = HttpClient::new();
+        let http_client = Client::new();
 
         DouyuParser {
             room_id,

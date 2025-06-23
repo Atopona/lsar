@@ -1,7 +1,7 @@
 use reqwest::Client;
 
 use crate::error::LsarResult;
-use crate::parser::ParsedResult;
+use crate::parsers::ParsedResult;
 use crate::platform::Platform;
 
 use super::cookie_verifier::CookieVerifier;

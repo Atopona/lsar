@@ -1,7 +1,7 @@
 use bytes::Bytes;
 use reqwest::{
     header::{CONTENT_TYPE, USER_AGENT},
-    Client, Response,
+    Client as InnerClient, Response,
 };
 use serde::{de::DeserializeOwned, Serialize};
 use tauri::http::{HeaderMap, HeaderName, HeaderValue};
@@ -9,12 +9,12 @@ use tauri::http::{HeaderMap, HeaderName, HeaderValue};
 use crate::error::{LsarError, LsarResult};
 
 #[derive(Clone)]
-pub struct HttpClient {
-    pub inner: Client,
+pub struct Client {
+    pub inner: InnerClient,
     headers: HeaderMap,
 }
 
-impl HttpClient {
+impl Client {
     pub fn new() -> Self {
         trace!("Creating new HttpClient instance");
 
@@ -26,8 +26,8 @@ impl HttpClient {
                 .unwrap(),
         );
 
-        let client = HttpClient {
-            inner: Client::new(),
+        let client = Client {
+            inner: InnerClient::new(),
             headers,
         };
         debug!("HttpClient instance created with default headers");

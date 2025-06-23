@@ -1,16 +1,17 @@
 use serde_json::Value;
 
+use crate::error::{LsarResult, RequestError, RoomStateError};
+use crate::network::http::Client;
+
 use super::constants::{INVALID_REQUEST, ROOM_OFFLINE_STATE};
 use super::models::RoomInfo;
-use crate::error::{LsarResult, RequestError, RoomStateError};
-use crate::parser::http_client::HttpClient;
 
 pub struct RoomInfoFetcher {
-    http_client: HttpClient,
+    http_client: Client,
 }
 
 impl RoomInfoFetcher {
-    pub fn new(http_client: HttpClient) -> Self {
+    pub fn new(http_client: Client) -> Self {
         RoomInfoFetcher { http_client }
     }
 

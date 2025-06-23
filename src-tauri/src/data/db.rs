@@ -1,7 +1,9 @@
 use sqlx::{sqlite::SqlitePoolOptions, Pool, Sqlite};
 use tokio::sync::OnceCell;
 
-use crate::{error::LsarResult, global::APP_CONFIG_DIR, history::HistoryItem};
+use crate::{error::LsarResult, global::APP_CONFIG_DIR};
+
+use super::history::HistoryItem;
 
 type SqlitePool = Pool<Sqlite>;
 

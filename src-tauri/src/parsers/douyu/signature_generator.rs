@@ -7,8 +7,8 @@ use crate::error::LsarResult;
 use crate::eval::EvalError;
 use crate::eval::EvalSender;
 use crate::eval::EVAL_EVENT;
-use crate::parser::time::now;
 use crate::utils::md5;
+use crate::utils::now;
 
 pub struct SignatureGenerator {
     eval_channel_sender: EvalSender,

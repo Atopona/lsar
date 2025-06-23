@@ -1,4 +1,4 @@
-use crate::{error::LsarResult, parser::time::now};
+use crate::{error::LsarResult, utils::now};
 
 pub(super) struct UuidGenerator;
 
