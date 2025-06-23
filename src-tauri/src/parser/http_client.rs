@@ -113,13 +113,17 @@ impl HttpClient {
         Ok(json)
     }
 
-    pub async fn post<T: DeserializeOwned>(&self, url: &str, body: &str) -> LsarResult<T> {
+    pub async fn post<D: DeserializeOwned, T: Serialize + ?Sized>(
+        &self,
+        url: &str,
+        form: &T,
+    ) -> LsarResult<D> {
         info!("Sending POST request with body to: {}", url);
         let response = self
             .send_request(
                 self.inner
                     .post(url)
-                    .body(body.to_string())
+                    .form(form)
                     .header(CONTENT_TYPE, "application/x-www-form-urlencoded"),
             )
             .await?;
