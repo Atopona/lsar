@@ -1,7 +1,7 @@
 use bytes::Bytes;
 use reqwest::{
     header::{CONTENT_TYPE, USER_AGENT},
-    Client as InnerClient, Response,
+    Body, Client as InnerClient, Response,
 };
 use serde::{de::DeserializeOwned, Serialize};
 use tauri::http::{HeaderMap, HeaderName, HeaderValue};
@@ -113,20 +113,41 @@ impl Client {
         Ok(json)
     }
 
-    pub async fn post<D: DeserializeOwned, T: Serialize + ?Sized>(
+    pub async fn post<D: DeserializeOwned, T: Into<Body>>(
+        &self,
+        url: &str,
+        body: T,
+    ) -> LsarResult<D> {
+        info!("Sending POST request with body to: {}", url);
+
+        let request = self
+            .inner
+            .post(url)
+            .body(body)
+            .header(CONTENT_TYPE, "application/x-www-form-urlencoded");
+
+        let response = self.send_request(request).await?;
+
+        debug!("POST request successful, status: {}", response.status());
+        let json = response.json().await.map_err(|e| {
+            error!("Failed to parse JSON response from POST request: {}", e);
+            LsarError::Http(e.into())
+        })?;
+
+        trace!("JSON response from POST request parsed successfully");
+        Ok(json)
+    }
+
+    pub async fn post_form<D: DeserializeOwned, T: Serialize + ?Sized>(
         &self,
         url: &str,
         form: &T,
     ) -> LsarResult<D> {
         info!("Sending POST request with body to: {}", url);
-        let response = self
-            .send_request(
-                self.inner
-                    .post(url)
-                    .form(form)
-                    .header(CONTENT_TYPE, "application/x-www-form-urlencoded"),
-            )
-            .await?;
+
+        let request = self.inner.post(url).form(form);
+
+        let response = self.send_request(request).await?;
 
         debug!("POST request successful, status: {}", response.status());
         let json = response.json().await.map_err(|e| {

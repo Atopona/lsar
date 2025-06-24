@@ -24,7 +24,7 @@ impl RoomInfoFetcher {
         let room_info_value: Value = if is_post_request {
             let url = format!("https://www.douyu.com/lapi/live/getH5Play/{}", room_id);
             debug!("Fetching room info from URL: {}, params: {}", url, params);
-            self.http_client.post(&url, params).await?
+            self.http_client.post(&url, params.to_string()).await?
         } else {
             let url = format!(
                 "https://playweb.douyu.com/lapi/live/getH5Play/{}?{}",
