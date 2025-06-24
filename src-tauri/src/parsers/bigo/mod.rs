@@ -41,7 +41,7 @@ impl BigoParser {
     async fn get_real_url(&self) -> LsarResult<RoomInfo> {
         const URL: &str = "https://ta.bigo.tv/official_website/studio/getInternalStudioInfo";
         let body = [("siteId", self.room_id)];
-        let resp: Response = self.http_client.post(URL, &body).await?;
+        let resp: Response = self.http_client.post_form(URL, &body).await?;
 
         Ok(resp.data)
     }
