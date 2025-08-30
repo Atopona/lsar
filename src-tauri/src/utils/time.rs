@@ -7,3 +7,7 @@ pub fn now() -> LsarResult<Duration> {
         .duration_since(UNIX_EPOCH)
         .map_err(LsarError::SystemTime)
 }
+
+pub fn now_millis() -> LsarResult<u64> {
+    Ok(now()?.as_millis() as u64)
+}

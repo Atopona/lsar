@@ -1,18 +1,23 @@
+mod a_bogus;
 mod models;
+mod ms_token;
 mod utils;
 
 use reqwest::header::{COOKIE, UPGRADE_INSECURE_REQUESTS};
 use serde_json::Value;
+use url::Url;
 
 use crate::error::{LsarResult, RoomStateError};
 use crate::network::http::Client;
 use crate::parsers::ParsedResult;
 use crate::platform::Platform;
 
-use self::models::{Resolution, RoomInfo};
-use self::utils::{get_ac_nonce, get_ttwid};
-
 use super::Parser;
+
+use self::a_bogus::ABogus;
+use self::models::{Resolution, RoomInfo};
+use self::ms_token::generate_ms_token;
+use self::utils::{get_ac_nonce, get_ttwid};
 
 pub struct DouyinParser {
     room_id: u64,
@@ -47,15 +52,26 @@ impl DouyinParser {
         Ok(())
     }
 
+    fn get_a_bogus(params: &str) -> LsarResult<String> {
+        let a_bogus = ABogus::new(None);
+        Ok(a_bogus.get_value(params, None, None, None, None, None))
+    }
+
     async fn get_room_info(&self) -> LsarResult<RoomInfo> {
-        let url = format!(
-            "https://live.douyin.com/webcast/room/web/enter/?aid=6383&app_name=douyin_web&live_id=1&device_platform=web&language=zh-CN&enter_from=web_live&cookie_enabled=true&screen_width=1728&screen_height=1117&browser_language=zh-CN&browser_platform=MacIntel&browser_name=Chrome&browser_version=116.0.0.0&web_rid={}",
+        let url_str = format!(
+            "https://live.douyin.com/webcast/room/web/enter/?aid=6383&app_name=douyin_web&live_id=1&device_platform=web&language=en&enter_from=web_live&cookie_enabled=true&screen_width=1920&screen_height=1080&browser_language=en&browser_platform=MacIntel&browser_name=Chrome&browser_version=139.0.0.0&web_rid={}&enter_source=&is_need_double_stream=false&insert_task_id=&live_reason=",
             self.room_id
         );
+        let mut url = Url::parse(&url_str)?;
+        let ms_token = generate_ms_token();
+        url.query_pairs_mut().append_pair("msToken", &ms_token);
+        let params = url.query().unwrap_or_default();
+        let a_bogus = Self::get_a_bogus(params)?;
+        url.query_pairs_mut().append_pair("a_bogus", &a_bogus);
 
         trace!("Constructed room info URL: {}", url);
         info!("Sending GET request to fetch room info");
-        let room_info_value: Value = self.client.get_json(&url).await?;
+        let room_info_value: Value = self.client.get_json(url.as_str()).await?;
         debug!("Room info fetched successfully: {}", room_info_value);
         let status_code = &room_info_value["status_code"].as_i64().unwrap_or(0);
         if *status_code != 0 {
