@@ -42,10 +42,6 @@ export const category = style({
 });
 
 export const button = style({
-  width: "16px",
-  height: "16px",
-  padding: 0,
-
   selectors: {
     "&:hover": {
       cursor: "default",

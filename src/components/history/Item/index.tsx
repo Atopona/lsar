@@ -1,4 +1,4 @@
-import { createSignal } from "solid-js";
+import { createSignal, Show } from "solid-js";
 import { AiFillApi, AiFillChrome, AiFillDelete } from "solid-icons/ai";
 
 import { Text } from "fluent-solid/lib/components/text/Text";
@@ -6,7 +6,13 @@ import { Caption1 } from "fluent-solid";
 
 import { deleteHistoryByID, open } from "~/command";
 import { useAppContext } from "~/context";
-import { LazyButton, LazyCard, LazyCardHeader, LazyTooltip } from "~/lazy";
+import {
+  LazyButton,
+  LazyCard,
+  LazyCardHeader,
+  LazySpinner,
+  LazyTooltip,
+} from "~/lazy";
 
 import { parse, platforms } from "~/parser";
 
@@ -18,6 +24,8 @@ interface HistoryItemProps extends HistoryItem {
   startParsing: () => void;
   endParsing: () => void;
 }
+
+const BUTTON_ICON_FONT_SIZE = "16px";
 
 const HistoryItem = (props: HistoryItemProps) => {
   const [
@@ -89,7 +97,14 @@ const HistoryItem = (props: HistoryItemProps) => {
             >
               <LazyButton
                 class={styles.button}
-                icon={<AiFillApi font-size="14px" />}
+                icon={
+                  <Show
+                    when={!parsing()}
+                    fallback={<LazySpinner size="extra-tiny" />}
+                  >
+                    <AiFillApi font-size={BUTTON_ICON_FONT_SIZE} />
+                  </Show>
+                }
                 appearance="transparent"
                 shape="circular"
                 isLoading={parsing()}
@@ -107,7 +122,7 @@ const HistoryItem = (props: HistoryItemProps) => {
             >
               <LazyButton
                 class={styles.button}
-                icon={<AiFillChrome font-size="14px" />}
+                icon={<AiFillChrome font-size={BUTTON_ICON_FONT_SIZE} />}
                 appearance="transparent"
                 shape="circular"
                 size="small"
@@ -129,7 +144,7 @@ const HistoryItem = (props: HistoryItemProps) => {
                   [styles.deleteButton]: true,
                 }}
                 onClick={onDelete}
-                icon={<AiFillDelete font-size="14px" />}
+                icon={<AiFillDelete font-size={BUTTON_ICON_FONT_SIZE} />}
                 appearance="transparent"
                 shape="circular"
                 size="small"
