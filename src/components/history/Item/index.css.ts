@@ -53,12 +53,12 @@ export const deleteButton = style({
   color: themeContract.colorStatusDangerForeground2,
 
   selectors: {
-    "&:hover": {
+    "&:not(:disabled):hover": {
       cursor: "default",
       color: themeContract.colorStatusDangerForeground3,
     },
 
-    "&:hover:active": {
+    "&:not(:disabled):hover:active": {
       color: themeContract.colorStatusDangerForeground1,
     },
   },
