@@ -1,19 +1,18 @@
-import { ask, open } from "@tauri-apps/plugin-dialog";
-import { createEffect, createSignal, Show, useContext } from "solid-js";
+import { createEffect, createSignal, useContext } from "solid-js";
+
 import { getPlayerPaths, writeConfigFile } from "~/command";
+
 import { AppContext } from "~/context";
-import {
-  LazyButton,
-  LazyDialog,
-  LazyFlex,
-  LazyLabel,
-  LazySpace,
-  LazyText,
-  LazyTextArea,
-} from "~/lazy";
-import DarkMode from "./DarkMode";
-import Transparent from "./Transparent";
-import { relaunch } from "@tauri-apps/plugin-process";
+
+import { AlleyFlex, LazyButton } from "~/lazy";
+
+import { Drawer } from "../drawer/Drawer";
+
+import DarkMode from "./components/DarkMode";
+import PlayerPath from "./components/PlayerPath";
+import BiliCookie from "./components/BiliCookie";
+
+import * as styles from "./index.css";
 
 const Settings = () => {
   const [
@@ -52,21 +51,6 @@ const Settings = () => {
 
   const close = () => setShowSettings(false);
 
-  const onSelectFile = async () => {
-    const file: string | null = await open({
-      multiple: false,
-      directory: false,
-    });
-    file &&
-      setLsarConfig(
-        (prev) =>
-          prev && {
-            ...prev,
-            player: { ...prev.player, path: file },
-          },
-      );
-  };
-
   const onCancel = () => {
     if (!lsarConfig()?.player.path) {
       // TODO: 关闭程序
@@ -89,28 +73,12 @@ const Settings = () => {
   };
 
   return (
-    <LazyDialog
-      show={showSettings() || !defaultConfig()?.player.path}
-      onClose={() => { }}
-      maskClosable={false}
+    <Drawer
+      open={showSettings() || !defaultConfig()?.player.path}
+      title="设置"
+      onClose={onCancel}
     >
-      <LazyFlex direction="vertical" gap={16} style={{ "min-width": "400px" }}>
-        <Transparent
-          enabled={!!lsarConfig()?.transparent}
-          onSwitch={async (enabled) => {
-            const newConfig = {
-              ...lsarConfig()!,
-              transparent: enabled,
-            };
-            setLsarConfig(newConfig);
-            await writeConfigFile(newConfig);
-            const ok = await ask(
-              "透明度修改后需重启本软件才能生效，是否立即重启？",
-            );
-            if (ok) relaunch();
-          }}
-        />
-
+      <AlleyFlex direction="vertical" gap={16} style={{ "min-width": "400px" }}>
         <DarkMode
           mode={lsarConfig()?.dark_mode || "system"}
           onChoice={(mode) =>
@@ -124,60 +92,50 @@ const Settings = () => {
           }
         />
 
-        <LazySpace justify="between">
-          <LazyLabel>播放器绝对路径</LazyLabel>
+        <PlayerPath
+          path={lsarConfig()?.player.path}
+          onPathChange={(path) =>
+            setLsarConfig(
+              (prev) =>
+                prev && {
+                  ...prev,
+                  player: { ...prev.player, path },
+                },
+            )
+          }
+        />
 
-          <Show when={lsarConfig()?.player.path}>
-            <LazyText type="secondary" style={{ "margin-right": "8px" }}>
-              {lsarConfig()?.player.path}
-            </LazyText>
-          </Show>
+        <BiliCookie
+          cookie={lsarConfig()?.platform.bilibili.cookie}
+          onChange={(cookie) =>
+            setLsarConfig(
+              (prev) =>
+                prev && {
+                  ...prev,
+                  platform: { ...prev.platform, bilibili: { cookie } },
+                },
+            )
+          }
+        />
 
+        <div class={styles.buttons}>
           <LazyButton
-            size="small"
-            onClick={onSelectFile}
-            shape="round"
-            type="primary"
-          >
-            <Show when={!lsarConfig()?.player.path} fallback={"重新选择"}>
-              选择文件
-            </Show>
-          </LazyButton>
-        </LazySpace>
-
-        <LazyFlex align="start" justify="between">
-          <LazyLabel style={{ flex: 1 }}>B 站 Cookie</LazyLabel>
-          <LazyTextArea
-            style={{ flex: 3 }}
-            placeholder="不看 B 站直播无需配置此项"
-            rows={6}
-            value={lsarConfig()?.platform.bilibili.cookie}
-            onInput={(s) =>
-              setLsarConfig(
-                (prev) =>
-                  prev && {
-                    ...prev,
-                    platform: { ...prev.platform, bilibili: { cookie: s } },
-                  },
-              )
-            }
-          />
-        </LazyFlex>
-
-        <LazySpace justify="around">
-          <LazyButton
-            danger
             onClick={onCancel}
             disabled={!defaultConfig()?.player.path}
           >
             取消
           </LazyButton>
-          <LazyButton onClick={onOk} disabled={!lsarConfig()?.player.path}>
-            确认
+
+          <LazyButton
+            appearance="primary"
+            onClick={onOk}
+            disabled={!lsarConfig()?.player.path}
+          >
+            保存
           </LazyButton>
-        </LazySpace>
-      </LazyFlex>
-    </LazyDialog>
+        </div>
+      </AlleyFlex>
+    </Drawer>
   );
 };
 
