@@ -14,26 +14,31 @@ export const platforms = {
   douyu: {
     label: "斗鱼",
     roomBaseURL: "https://www.douyu.com/",
+    logo: "https://www.douyu.com/favicon.ico",
     parser: douyu,
   },
   huya: {
     label: "虎牙",
     roomBaseURL: "https://www.huya.com/",
+    logo: "https://www.huya.com/favicon.ico",
     parser: huya,
   },
   bilibili: {
     label: "B 站",
     roomBaseURL: "https://live.bilibili.com/",
+    logo: "https://www.bilibili.com/favicon.ico",
     parser: bilibili,
   },
   douyin: {
     label: "抖音",
     roomBaseURL: "https://live.douyin.com/",
+    logo: "https://p-pc-weboff.byteimg.com/tos-cn-i-9r5gewecjs/favicon.png",
     parser: douyin,
   },
   bigo: {
     label: "Bigo",
     roomBaseURL: "https://www.bigo.tv/cn/",
+    logo: "https://s2.loli.net/2025/08/31/DZgyj189JrkAHCs.png",
     parser: bigo,
   },
 } as const;
@@ -49,7 +54,7 @@ export const handleParsingError = (platform: Platform, e: unknown): Error => {
       return new Error("解码响应失败");
     case "http error: Other":
       return new Error(
-        "其他网络错误，请将日志上传到 https://github.com/alley-rs/lsar/issues"
+        "其他网络错误，请将日志上传到 https://github.com/alley-rs/lsar/issues",
       );
     default:
       error(platform, errorMessage);
@@ -63,7 +68,7 @@ export const parse = async (
   config: Config,
   setShowSettings: Setter<boolean>,
   setToast: AppContext[1]["setToast"],
-  setParsedResult: AppContext[3]["setParsedResult"]
+  setParsedResult: AppContext[3]["setParsedResult"],
 ) => {
   // 解析前先清空原有的解析结果
   setParsedResult(null);
