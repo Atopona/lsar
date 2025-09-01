@@ -1,5 +1,5 @@
 import { children, createSignal, For } from "solid-js";
-import { AiOutlineCheck } from "solid-icons/ai";
+import { AiFillApi } from "solid-icons/ai";
 
 import { LazyButton, LazyInput, LazyBadge } from "~/lazy";
 
@@ -19,7 +19,7 @@ const Search = () => {
     { setShowSettings: setShowBilibiliCookieEditor },
   ] = useAppContext();
 
-  const [input, setInput] = createSignal<string>("");
+  const [input, setInput] = createSignal<string>();
   const [currentPlatform, setCurrentPlatform] = createSignal<Platform | null>(
     null,
   );
@@ -30,7 +30,11 @@ const Search = () => {
   const resetInput = () => setInput("");
 
   const selectPlatform = (value: Platform) => {
-    if (currentPlatform() === value) return;
+    if (currentPlatform() === value) {
+      // 点击已选中的平台，清空选中
+      setCurrentPlatform(null);
+      return;
+    }
 
     if (currentPlatform()) resetInput();
 
@@ -42,17 +46,21 @@ const Search = () => {
     setInput(v);
   };
 
-  const buttons = children(() => (
+  const badges = children(() => (
     <div class={styles.badges}>
-      <For each={Object.keys(platforms)}>
+      <For each={Object.keys(platforms) as Platform[]}>
         {(key) => {
-          const item = platforms[key as Platform];
+          const item = platforms[key];
 
           return (
             <LazyBadge
               shape="rounded"
               color={currentPlatform() === key ? "brand" : "informative"}
-              onClick={() => selectPlatform(key as Platform)}
+              appearance={currentPlatform() === key ? "filled" : "tint"}
+              onClick={() => selectPlatform(key)}
+              icon={
+                <img src={item.logo} alt={item.label} height={12} width={12} />
+              }
             >
               {item.label}
             </LazyBadge>
@@ -63,7 +71,9 @@ const Search = () => {
   ));
 
   const onParse = async () => {
-    const value = input().trim();
+    const value = input()?.trim();
+    if (!value) return;
+
     const parsedInput = isValidNumberOrHttpsUrl(value);
     if (parsedInput instanceof Error) {
       setToast({ type: "error", message: parsedInput.message });
@@ -85,17 +95,19 @@ const Search = () => {
   };
 
   return (
-    <div>
-      {buttons()}
+    <>
+      {badges()}
 
       <LazyInput
         placeholder="输入房间号或直播间链接"
-        value={input()}
-        onChange={onInput}
-        disabled={loading()}
+        onInput={onInput}
+        onKeyDown={(e) => {
+          if (input()?.trim() && e.key === "Enter") onParse();
+        }}
+        disabled={!currentPlatform() || loading()}
         contentAfter={
           <LazyButton
-            icon={<AiOutlineCheck />}
+            icon={<AiFillApi />}
             isLoading={loading()}
             disabled={!currentPlatform() || !input()}
             onClick={onParse}
@@ -103,7 +115,7 @@ const Search = () => {
           />
         }
       />
-    </div>
+    </>
   );
 };
 
