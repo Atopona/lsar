@@ -103,6 +103,7 @@ const Search = () => {
       {badges()}
 
       <LazyInput
+        appearance="underline"
         placeholder="输入房间号或直播间链接"
         onInput={onInput}
         onKeyDown={(e) => {
