@@ -46,6 +46,7 @@ const HistoryItem = (props: HistoryItemProps) => {
   const onParse = async () => {
     props.startParsing();
     setParsing(true);
+    setParsedResult(); // 清空解析结果
 
     const result = await parse(
       props.platform,
