@@ -1,7 +1,13 @@
 import { style } from "@vanilla-extract/css";
 import { themeContract, vars } from "fluent-solid/lib/themes";
 
-export const root = style({ width: "460px", height: "460px" });
+export const root = style({
+  width: "460px",
+  height: "470px",
+  marginTop: vars.spacingVerticalM,
+  marginBottom: vars.spacingVerticalM,
+  borderRadius: vars.borderRadiusXLarge,
+});
 
 export const headerDescription = style({
   marginTop: vars.spacingVerticalSNudge,
