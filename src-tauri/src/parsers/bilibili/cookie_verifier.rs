@@ -59,7 +59,7 @@ impl<'a> CookieVerifier<'a> {
 
             // -101 未登录
             if response.code == -101 && response.message == "账号未登录" {
-                return Err("账号未登录，cookie 未设置或已失效".into());
+                return Err("cookie 未设置或已失效".into());
             }
 
             return Err(err_msg.into());
