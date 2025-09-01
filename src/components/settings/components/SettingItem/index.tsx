@@ -10,6 +10,7 @@ interface SettingItemProps {
   label: string;
   children: JSX.Element;
   orientation?: FieldProps["orientation"];
+  tips?: string;
 }
 
 const SettingItem = (props: SettingItemProps) => {
@@ -22,6 +23,7 @@ const SettingItem = (props: SettingItemProps) => {
     <LazyField
       orientation={merged.orientation}
       label={{ children: props.label, class: styles.label }}
+      validationMessage={merged.tips}
     >
       {props.children}
     </LazyField>

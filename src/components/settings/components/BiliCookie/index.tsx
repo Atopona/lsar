@@ -8,10 +8,13 @@ interface BiliCookieProps {
 
 const BiliCookie = (props: BiliCookieProps) => {
   return (
-    <SettingItem label="B 站 Cookie" orientation="vertical">
+    <SettingItem
+      label="B 站 Cookie"
+      orientation="vertical"
+      tips="不看 B 站直播无需配置此项。获取方法请自行搜索，互联网上教程很多。"
+    >
       <LazyTextArea
-        placeholder="不看 B 站直播无需配置此项"
-        rows={15}
+        rows={props.cookie ? 15 : 3}
         value={props.cookie}
         onChange={props.onChange}
       />
