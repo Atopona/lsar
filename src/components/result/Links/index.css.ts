@@ -1,9 +1,16 @@
 import { style } from "@vanilla-extract/css";
+import { vars } from "fluent-solid/lib/themes";
 
 export const item = style({
   display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
+
+  selectors: {
+    "&:not(:last-of-type)": {
+      marginBottom: vars.spacingVerticalSNudge,
+    },
+  },
 });
 
 export const itemLinkContainer = style({

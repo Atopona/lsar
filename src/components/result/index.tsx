@@ -16,6 +16,7 @@ import {
 
 import { useParsedResultContext } from "~/contexts/ParsedResultContext";
 
+import MessageBar from "../message-bar";
 import Links from "./Links";
 
 import * as styles from "./index.css";
@@ -75,7 +76,15 @@ const Result = () => {
       />
 
       <Show when={parsedResult()}>
-        <Links {...parsedResult()!} />
+        <div class={styles.content}>
+          <Links {...parsedResult()!} />
+
+          <MessageBar>
+            <LazyText>
+              点击播放按钮后请等待1~3秒用于加载，若播放失败，可尝试播放其他链接或者重新解析
+            </LazyText>
+          </MessageBar>
+        </div>
       </Show>
     </LazyCard>
   );

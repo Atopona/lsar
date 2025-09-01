@@ -24,3 +24,10 @@ export const headerDescriptionItem = style({
   gap: vars.spacingHorizontalXS,
   color: themeContract.colorNeutralForeground4,
 });
+
+export const content = style({
+  height: "100%",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "space-between",
+});
