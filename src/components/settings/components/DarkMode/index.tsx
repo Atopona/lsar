@@ -23,7 +23,7 @@ const DarkMode = (props: DarkModeProps) => {
           {(mode) => (
             <LazyBadge
               onClick={() => props.onChoice(mode.value)}
-              appearance="filled" // TODO: 其他 appearance 尚未实现，应该使用 outline
+              appearance="tint"
               color={props.mode === mode.value ? "brand" : "informative"}
             >
               {mode.label}

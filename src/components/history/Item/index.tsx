@@ -1,7 +1,6 @@
 import { createSignal, Show } from "solid-js";
 import { AiFillApi, AiFillChrome, AiFillDelete } from "solid-icons/ai";
 
-import { Text } from "fluent-solid/lib/components/text/Text";
 import { Caption1 } from "fluent-solid";
 
 import { deleteHistoryByID, open } from "~/command";
@@ -11,6 +10,7 @@ import {
   LazyCard,
   LazyCardHeader,
   LazySpinner,
+  LazyText,
   LazyTooltip,
 } from "~/lazy";
 
@@ -69,7 +69,7 @@ const HistoryItem = (props: HistoryItemProps) => {
     >
       <LazyCardHeader
         class={styles.header}
-        header={<Text weight="semibold">{props.last_title}</Text>}
+        header={<LazyText weight="semibold">{props.last_title}</LazyText>}
         description={
           <div class={styles.description}>
             <div class={styles.descriptionPart1}>
