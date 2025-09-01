@@ -2,7 +2,23 @@ import { createEffect, type Resource } from "solid-js";
 
 export function useDarkMode(config: Resource<Config>) {
   const switchDark = (isDark: boolean) => {
-    window.document.documentElement.classList.toggle("dark", isDark);
+    const currentTheme = document.documentElement.getAttribute("data-theme");
+
+    if (!currentTheme) {
+      document.documentElement.setAttribute(
+        "data-theme",
+        isDark ? "dark" : "light",
+      );
+      return;
+    }
+
+    // 切换主题
+    if (currentTheme === "dark") {
+      if (isDark) return;
+      document.documentElement.setAttribute("data-theme", "light");
+    } else {
+      if (isDark) document.documentElement.setAttribute("data-theme", "dark");
+    }
   };
 
   const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
@@ -12,6 +28,7 @@ export function useDarkMode(config: Resource<Config>) {
     if (!darkMode) return;
 
     const handleSystemTheme = (event?: MediaQueryListEvent) => {
+      // 系统偏好
       const isDark = event ? event.matches : mediaQuery.matches;
       switchDark(darkMode === "system" ? isDark : darkMode === "dark");
     };
@@ -25,6 +42,7 @@ export function useDarkMode(config: Resource<Config>) {
         mediaQuery.removeEventListener("change", handleSystemTheme);
       };
     }
+
     switchDark(darkMode === "dark");
   });
 
