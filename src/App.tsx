@@ -11,7 +11,6 @@ import { useDarkMode } from "./hooks/useDarkMode";
 import { useConfigContext } from "./contexts/ConfigContext";
 import { useSettingsContext } from "./contexts/SettingsContext";
 
-import "./App.scss";
 import * as styles from "./App.css";
 
 const TitleBar =
@@ -38,7 +37,7 @@ const App = () => {
       <div
         classList={{
           [styles.container]: true,
-          [styles.notMacos]: import.meta.env.TAURI_PLATFORM !== "macos",
+          [styles.notMacos]: import.meta.env.TAURI_ENV_PLATFORM !== "darwin",
         }}
       >
         <History />
