@@ -133,3 +133,5 @@ export const LazyTextArea = lazy(
 export const LazyField = lazy(
   () => import("fluent-solid/lib/components/field"),
 );
+
+export const LazyLink = lazy(() => import("fluent-solid/lib/components/link"));

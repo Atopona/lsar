@@ -67,19 +67,13 @@ export const parse = async (
   input: string | number,
   config: Config,
   setShowSettings: Setter<boolean>,
-  setToast: AppContext[1]["setToast"],
-  setParsedResult: AppContext[3]["setParsedResult"],
 ) => {
-  // 解析前先清空原有的解析结果
-  setParsedResult(null);
-
   if (
     typeof input === "string" &&
     getSecondLevelDomain(platforms[platform].roomBaseURL) !==
       getSecondLevelDomain(input)
   ) {
-    setToast({ type: "error", message: WRONG_SECOND_LEVEL_DOMAIN.message });
-    return;
+    return new Error(WRONG_SECOND_LEVEL_DOMAIN.message);
   }
 
   let parser: LiveStreamParser | Error;
@@ -96,8 +90,7 @@ export const parse = async (
   }
 
   if (parser instanceof Error) {
-    setToast({ type: "error", message: parser.message });
-    return;
+    return parser;
   }
 
   let result: ParsedResult | Error | null;
@@ -107,9 +100,5 @@ export const parse = async (
     result = handleParsingError(platform, e);
   }
 
-  if (result instanceof Error) {
-    setToast({ type: "error", message: result.message });
-  } else if (result) {
-    setParsedResult(result);
-  }
+  return result;
 };

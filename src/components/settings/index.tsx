@@ -1,8 +1,6 @@
-import { createEffect, createSignal, useContext } from "solid-js";
+import { createEffect, createSignal } from "solid-js";
 
 import { getPlayerPaths, writeConfigFile } from "~/command";
-
-import { AppContext } from "~/context";
 
 import { AlleyFlex, LazyButton } from "~/lazy";
 
@@ -12,16 +10,16 @@ import DarkMode from "./components/DarkMode";
 import PlayerPath from "./components/PlayerPath";
 import BiliCookie from "./components/BiliCookie";
 
+import { useToast } from "fluent-solid";
+import { useConfigContext } from "~/contexts/ConfigContext";
+import { useSettingsContext } from "~/contexts/SettingsContext";
+
 import * as styles from "./index.css";
 
 const Settings = () => {
-  const [
-    _,
-    { setToast },
-    { config: defaultConfig, refetchConfig },
-    ___,
-    { showSettings, setShowSettings },
-  ] = useContext(AppContext)!;
+  const toast = useToast();
+  const { config: defaultConfig, refetchConfig } = useConfigContext();
+  const { showSettings, setShowSettings } = useSettingsContext();
 
   const [lsarConfig, setLsarConfig] = createSignal(defaultConfig());
 
@@ -42,11 +40,9 @@ const Settings = () => {
         },
     );
 
-    setToast({
-      type: "success",
-      message:
-        "已自动选择播放器，如果此播放器不是你想使用的播放器，请点击“重新选择”按钮自行选择",
-    });
+    toast.success(
+      "已自动选择播放器，如果此播放器不是你想使用的播放器，请点击“重新选择”按钮自行选择",
+    );
   });
 
   const close = () => setShowSettings(false);

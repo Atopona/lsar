@@ -1,6 +1,6 @@
-import { createSignal, For, lazy, Show, useContext } from "solid-js";
+import { createSignal, For, lazy, Show } from "solid-js";
 
-import { AppContext } from "~/context";
+import { useHistoryContext } from "~/contexts/HistoryContext";
 
 import HistoryItem from "./Item";
 
@@ -8,12 +8,8 @@ import * as styles from "./index.css";
 
 const LazyEmpty = lazy(() => import("alley-components/lib/components/empty"));
 
-interface HistoryProps {
-  items?: HistoryItem[];
-}
-
-const History = (props: HistoryProps) => {
-  const [{ refetchHistoryItems }] = useContext(AppContext)!;
+const History = () => {
+  const { historyItems, refetchHistoryItems } = useHistoryContext();
 
   const [parsingIndex, setParsingIndex] = createSignal<number | null>(null);
 
@@ -21,14 +17,14 @@ const History = (props: HistoryProps) => {
     <div
       classList={{
         [styles.history]: true,
-        "history-empty": !props.items?.length,
+        "history-empty": !historyItems()?.length,
       }}
     >
       <Show
-        when={props.items?.length}
+        when={historyItems()?.length}
         fallback={<LazyEmpty description="空空如也" />}
       >
-        <For each={props.items}>
+        <For each={historyItems()}>
           {(item, index) => (
             <HistoryItem
               {...item}

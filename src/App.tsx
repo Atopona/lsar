@@ -1,7 +1,6 @@
-import { createResource, createSignal, lazy, onMount, Show } from "solid-js";
-import { LazyButton, LazyFlex, LazyToast, LazyTooltip } from "./lazy";
-import { AppContext } from "./context";
-import { showMainWindow, getAllHistory, readConfigFile } from "./command";
+import { lazy, onMount } from "solid-js";
+import { AlleyButton, AlleyFlex, AlleyTooltip } from "./lazy";
+import { showMainWindow } from "./command";
 import History from "./components/history";
 import Search from "./components/search";
 import Settings from "./components/settings";
@@ -10,6 +9,8 @@ import "./App.scss";
 import About from "./components/about";
 import { AiFillSetting } from "solid-icons/ai";
 import { useDarkMode } from "./hooks/useDarkMode";
+import { useConfigContext } from "./contexts/ConfigContext";
+import { useSettingsContext } from "./contexts/SettingsContext";
 
 const TitleBar =
   import.meta.env.TAURI_ENV_PLATFORM === "darwin"
@@ -17,16 +18,8 @@ const TitleBar =
     : null;
 
 const App = () => {
-  const [items, { refetch: refetchHistoryItems }] =
-    createResource(getAllHistory);
-  const [config, { refetch: refetchConfig }] = createResource(readConfigFile);
-
-  const [toast, setToast] = createSignal<Toast | null>(null);
-  const [parsedResult, setParsedResult] = createSignal<ParsedResult | null>(
-    null,
-  );
-
-  const [showSettings, setShowSettings] = createSignal(false);
+  const { config } = useConfigContext();
+  const { setShowSettings } = useSettingsContext();
 
   onMount(() => {
     showMainWindow();
@@ -40,60 +33,33 @@ const App = () => {
     <>
       {TitleBar && <TitleBar />}
 
-      <AppContext.Provider
-        value={[
-          { refetchHistoryItems },
-          { toast, setToast },
-          { config, refetchConfig },
-          { parsedResult, setParsedResult },
-          {
-            showSettings,
-            setShowSettings,
-          },
-        ]}
+      <AlleyFlex
+        class={
+          import.meta.env.TAURI_PLATFORM !== "macos" ? "not-macos" : undefined
+        }
       >
-        <LazyFlex
-          class={
-            import.meta.env.TAURI_PLATFORM !== "macos" ? "not-macos" : undefined
-          }
-        >
-          <History items={items()} />
+        <History />
 
-          <LazyFlex id="right" direction="vertical">
-            <Search />
+        <AlleyFlex id="right" direction="vertical">
+          <Search />
 
-            <LazyFlex class="parsed-result" direction="vertical" gap={8}>
-              <Show when={parsedResult()?.links.length}>
-                <Result {...parsedResult()!} />
-              </Show>
-            </LazyFlex>
+          <Result />
 
-            <About />
-          </LazyFlex>
+          <About />
+        </AlleyFlex>
 
-          <LazyTooltip text="设置" placement="top" delay={1000}>
-            <LazyButton
-              id="settings-button"
-              icon={<AiFillSetting />}
-              type="plain"
-              shape="circle"
-              onClick={onClickSettingsButton}
-            />
-          </LazyTooltip>
+        <AlleyTooltip text="设置" placement="top" delay={1000}>
+          <AlleyButton
+            id="settings-button"
+            icon={<AiFillSetting />}
+            type="plain"
+            shape="circle"
+            onClick={onClickSettingsButton}
+          />
+        </AlleyTooltip>
 
-          <Settings />
-        </LazyFlex>
-      </AppContext.Provider>
-
-      <LazyToast
-        open={!!toast()}
-        placement="bottom"
-        alert={{
-          ...toast()!,
-          showIcon: true,
-        }}
-        onClose={() => setToast(null)}
-      />
+        <Settings />
+      </AlleyFlex>
     </>
   );
 };

@@ -1,10 +1,9 @@
 import { createSignal, Show } from "solid-js";
 import { AiFillApi, AiFillChrome, AiFillDelete } from "solid-icons/ai";
 
-import { Caption1 } from "fluent-solid";
+import { Caption1, useToast } from "fluent-solid";
 
 import { deleteHistoryByID, open } from "~/command";
-import { useAppContext } from "~/context";
 import {
   LazyButton,
   LazyCard,
@@ -15,6 +14,10 @@ import {
 } from "~/lazy";
 
 import { parse, platforms } from "~/parser";
+
+import { useParsedResultContext } from "~/contexts/ParsedResultContext";
+import { useConfigContext } from "~/contexts/ConfigContext";
+import { useSettingsContext } from "~/contexts/SettingsContext";
 
 import * as styles from "./index.css";
 
@@ -28,13 +31,10 @@ interface HistoryItemProps extends HistoryItem {
 const BUTTON_ICON_FONT_SIZE = "16px";
 
 const HistoryItem = (props: HistoryItemProps) => {
-  const [
-    _,
-    { setToast },
-    { config },
-    { setParsedResult },
-    { setShowSettings: setShowBilibiliCookieEditor },
-  ] = useAppContext();
+  const toast = useToast();
+  const { config } = useConfigContext();
+  const { setParsedResult } = useParsedResultContext();
+  const { setShowSettings: setShowBilibiliCookieEditor } = useSettingsContext();
 
   const [parsing, setParsing] = createSignal(false);
 
@@ -47,14 +47,18 @@ const HistoryItem = (props: HistoryItemProps) => {
     props.startParsing();
     setParsing(true);
 
-    await parse(
+    const result = await parse(
       props.platform,
       props.room_id,
       config()!,
       setShowBilibiliCookieEditor,
-      setToast,
-      setParsedResult,
     );
+
+    if (result instanceof Error) {
+      toast.error(result.message, { position: "bottom-right" });
+    } else {
+      setParsedResult(result);
+    }
 
     setParsing(false);
     props.endParsing();

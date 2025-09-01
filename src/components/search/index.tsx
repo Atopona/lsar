@@ -3,21 +3,21 @@ import { AiFillApi } from "solid-icons/ai";
 
 import { LazyButton, LazyInput, LazyBadge } from "~/lazy";
 
-import { useAppContext } from "~/context";
-
 import { parse, platforms } from "~/parser";
 import { isValidNumberOrHttpsUrl } from "~/parser/validators";
+
+import { useToast } from "fluent-solid";
+import { useConfigContext } from "~/contexts/ConfigContext";
+import { useParsedResultContext } from "~/contexts/ParsedResultContext";
+import { useSettingsContext } from "~/contexts/SettingsContext";
 
 import * as styles from "./index.css";
 
 const Search = () => {
-  const [
-    _,
-    { setToast },
-    { config },
-    { setParsedResult },
-    { setShowSettings: setShowBilibiliCookieEditor },
-  ] = useAppContext();
+  const toast = useToast();
+  const { config } = useConfigContext();
+  const { setParsedResult } = useParsedResultContext();
+  const { setShowSettings: setShowBilibiliCookieEditor } = useSettingsContext();
 
   const [input, setInput] = createSignal<string>();
   const [currentPlatform, setCurrentPlatform] = createSignal<Platform | null>(
@@ -26,7 +26,7 @@ const Search = () => {
 
   const [loading, setLoading] = createSignal(false);
 
-  const resetParseResult = () => setParsedResult(null);
+  const resetParseResult = () => setParsedResult();
   const resetInput = () => setInput("");
 
   const selectPlatform = (value: Platform) => {
@@ -76,20 +76,24 @@ const Search = () => {
 
     const parsedInput = isValidNumberOrHttpsUrl(value);
     if (parsedInput instanceof Error) {
-      setToast({ type: "error", message: parsedInput.message });
+      toast.error(parsedInput.message);
       return;
     }
 
     setLoading(true);
 
-    await parse(
+    const result = await parse(
       currentPlatform()!,
       parsedInput,
       config()!,
       setShowBilibiliCookieEditor,
-      setToast,
-      setParsedResult,
     );
+
+    if (result instanceof Error) {
+      toast.error(result.message, { position: "bottom-right" });
+    } else {
+      setParsedResult(result);
+    }
 
     setLoading(false);
   };
