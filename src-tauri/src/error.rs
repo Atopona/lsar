@@ -135,19 +135,18 @@ impl fmt::Display for RequestError {
     }
 }
 
-#[derive(Debug, Serialize, thiserror::Error)]
+#[derive(Debug, thiserror::Error)]
 pub(super) enum MissKeyFieldError {
+    #[error("解析标题失败")]
     Title,
+    #[error("解析主播名失败")]
     AnchorName,
+    #[error("解析签名函数失败")]
     SignatureFunction,
+    #[error("解析随机数失败")]
     RandomNumber,
+    #[error("解析房间号失败，请检查房间号是否正确")]
     RoomId,
-}
-
-impl fmt::Display for MissKeyFieldError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", self)
-    }
 }
 
 impl From<&str> for LsarError {
