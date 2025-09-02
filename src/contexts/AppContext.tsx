@@ -6,6 +6,7 @@ import { ConfigContextProvider } from "./ConfigContext";
 import { SettingsContextProvider } from "./SettingsContext";
 import { HistoryContextProvider } from "./HistoryContext";
 import { ParsedResultContextProvider } from "./ParsedResultContext";
+import { ParsingContextProvider } from "./ParsingContext";
 
 export const AppContextProvider = (props: ParentProps) => {
   return (
@@ -14,7 +15,7 @@ export const AppContextProvider = (props: ParentProps) => {
         <SettingsContextProvider>
           <HistoryContextProvider>
             <ParsedResultContextProvider>
-              {props.children}
+              <ParsingContextProvider>{props.children}</ParsingContextProvider>
             </ParsedResultContextProvider>
           </HistoryContextProvider>
         </SettingsContextProvider>
