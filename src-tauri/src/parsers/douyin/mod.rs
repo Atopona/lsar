@@ -84,8 +84,10 @@ pub struct DouyinParser {
 
 impl DouyinParser {
     pub fn new(room_id: u64) -> Self {
-        let mut api_params = ApiParams::default();
-        api_params.web_rid = room_id;
+        let api_params = ApiParams {
+            web_rid: room_id,
+            ..Default::default()
+        };
 
         DouyinParser {
             room_id,

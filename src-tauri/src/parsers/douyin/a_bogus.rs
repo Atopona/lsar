@@ -199,70 +199,49 @@ impl ABogusGenerator {
     }
 
     /// 构建固定格式的字节数组
-    ///
-    /// # 参数
-    /// 17个字节参数，用于构建特定格式的数据结构
-    fn build_structured_byte_array(
-        end_time_byte3: u8,
-        params_hash_21: u8,
-        ua_code_23: u8,
-        end_time_byte2: u8,
-        params_hash_22: u8,
-        ua_code_24: u8,
-        end_time_byte1: u8,
-        end_time_byte0: u8,
-        start_time_byte3: u8,
-        start_time_byte2: u8,
-        start_time_byte1: u8,
-        start_time_byte0: u8,
-        method_hash_21: u8,
-        method_hash_22: u8,
-        end_time_high: u8,
-        start_time_high: u8,
-        browser_length: u8,
-    ) -> Vec<u8> {
+    fn build_structured_byte_array(params: ByteArrayParams) -> Vec<u8> {
         vec![
             44,
-            end_time_byte3,
+            params.end_time_byte3,
             0,
             0,
             0,
             0,
             24,
-            params_hash_21,
-            method_hash_21,
+            params.params_hash_21,
+            params.method_hash_21,
             0,
-            ua_code_23,
-            end_time_byte2,
+            params.ua_code_23,
+            params.end_time_byte2,
             0,
             0,
             0,
             1,
             0,
             239,
-            params_hash_22,
-            method_hash_22,
-            ua_code_24,
-            end_time_byte1,
+            params.params_hash_22,
+            params.method_hash_22,
+            params.ua_code_24,
+            params.end_time_byte1,
             0,
             0,
             0,
             0,
-            end_time_byte0,
+            params.end_time_byte0,
             0,
             0,
             14,
-            start_time_byte3,
-            start_time_byte2,
+            params.start_time_byte3,
+            params.start_time_byte2,
             0,
-            start_time_byte1,
-            start_time_byte0,
+            params.start_time_byte1,
+            params.start_time_byte0,
             3,
-            end_time_high,
+            params.end_time_high,
             1,
-            start_time_high,
+            params.start_time_high,
             1,
-            browser_length,
+            params.browser_length,
             0,
             0,
             0,
@@ -332,25 +311,16 @@ impl ABogusGenerator {
         let params_hash = Self::generate_params_hash(params);
         let method_hash = Self::generate_method_hash(method);
 
-        Self::build_structured_byte_array(
-            ((actual_end_time >> 24) & 0xFF) as u8,
-            params_hash[21],
-            self.user_agent_code[23],
-            ((actual_end_time >> 16) & 0xFF) as u8,
-            params_hash[22],
-            self.user_agent_code[24],
-            ((actual_end_time >> 8) & 0xFF) as u8,
-            (actual_end_time & 0xFF) as u8,
-            ((actual_start_time >> 24) & 0xFF) as u8,
-            ((actual_start_time >> 16) & 0xFF) as u8,
-            ((actual_start_time >> 8) & 0xFF) as u8,
-            (actual_start_time & 0xFF) as u8,
-            method_hash[21],
-            method_hash[22],
-            (actual_end_time >> 32) as u8,
-            (actual_start_time >> 32) as u8,
+        let byte_params = ByteArrayParams::new(
+            actual_end_time,
+            actual_start_time,
+            &params_hash,
+            &method_hash,
+            &self.user_agent_code,
             self.browser_fingerprint.len() as u8,
-        )
+        );
+
+        Self::build_structured_byte_array(byte_params)
     }
 
     /// 计算 XOR 校验和
@@ -475,5 +445,70 @@ impl ABogusGenerator {
 
         let combined_data = format!("{}{}", first_component, second_component);
         Self::encode_with_custom_base64(combined_data.as_bytes(), &Base64Charset::CustomVariant4)
+    }
+}
+
+/// 用于构建结构化字节数组的参数
+struct ByteArrayParams {
+    // 结束时间相关字节
+    end_time_byte3: u8,
+    end_time_byte2: u8,
+    end_time_byte1: u8,
+    end_time_byte0: u8,
+    end_time_high: u8,
+
+    // 开始时间相关字节
+    start_time_byte3: u8,
+    start_time_byte2: u8,
+    start_time_byte1: u8,
+    start_time_byte0: u8,
+    start_time_high: u8,
+
+    // 哈希相关字节
+    params_hash_21: u8,
+    params_hash_22: u8,
+    method_hash_21: u8,
+    method_hash_22: u8,
+
+    // UA 代码相关字节
+    ua_code_23: u8,
+    ua_code_24: u8,
+
+    // 浏览器长度
+    browser_length: u8,
+}
+
+impl ByteArrayParams {
+    fn new(
+        end_time: u64,
+        start_time: u64,
+        params_hash: &[u8],
+        method_hash: &[u8],
+        ua_code: &[u8],
+        browser_length: u8,
+    ) -> Self {
+        Self {
+            end_time_byte3: ((end_time >> 24) & 0xFF) as u8,
+            end_time_byte2: ((end_time >> 16) & 0xFF) as u8,
+            end_time_byte1: ((end_time >> 8) & 0xFF) as u8,
+            end_time_byte0: (end_time & 0xFF) as u8,
+            end_time_high: (end_time >> 32) as u8,
+
+            start_time_byte3: ((start_time >> 24) & 0xFF) as u8,
+            start_time_byte2: ((start_time >> 16) & 0xFF) as u8,
+            start_time_byte1: ((start_time >> 8) & 0xFF) as u8,
+            start_time_byte0: (start_time & 0xFF) as u8,
+            start_time_high: (start_time >> 32) as u8,
+
+            params_hash_21: params_hash[21],
+            params_hash_22: params_hash[22],
+            method_hash_21: method_hash[21],
+            method_hash_22: method_hash[22],
+
+            ua_code_23: ua_code[23],
+            ua_code_24: ua_code[24],
+
+            browser_length,
+        }
     }
 }
