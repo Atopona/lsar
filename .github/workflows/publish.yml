@@ -152,21 +152,25 @@ jobs:
               draft: false,
             })
 
-  update-main-verison:
+  update-main-version:
     needs: publish-release
     if: success()
     runs-on: ubuntu-22.04
+
     steps:
       - uses: actions/checkout@v4
+        with:
+            fetch-depth: 0
 
       - name: update main version
         run: |
+          git fetch origin release:release  # 获取远程release分支
           git checkout main
           git merge release --ff-only  # 或者使用 cherry-pick 获取版本更新的 commit
           git push origin main
 
   cleanup-release-branch:
-    needs: update-main-verison
+    needs: update-main-version
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -257,4 +261,4 @@ jobs:
         if: env.RELEASE_ID != ''
         run: gh release delete nightly --cleanup-tag
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
