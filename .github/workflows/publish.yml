@@ -11,25 +11,109 @@ on:
           - patch
           - minor
           - major
+      skip_tests:
+        description: "Skip tests before release"
+        required: false
+        default: false
+        type: boolean
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
 
 jobs:
+  pre-checks:
+    runs-on: ubuntu-22.04
+    outputs:
+      should_continue: ${{ steps.check.outputs.should_continue }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check if release is needed
+        id: check
+        run: |
+          # 检查是否有未发布的更改
+          if git describe --tags --exact-match HEAD 2>/dev/null; then
+            echo "Current commit is already tagged, skipping release"
+            echo "should_continue=false" >> $GITHUB_OUTPUT
+          else
+            echo "should_continue=true" >> $GITHUB_OUTPUT
+          fi
+
+  test:
+    runs-on: ubuntu-22.04
+    needs: pre-checks
+    if: needs.pre-checks.outputs.should_continue == 'true' && !inputs.skip_tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - name: Cache Rust dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            src-tauri/target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Install frontend dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run frontend checks
+        run: |
+          bun run check
+          bun run build:vite
+
+      - name: Run Rust checks
+        working-directory: src-tauri
+        run: |
+          cargo fmt --check
+          cargo clippy -- -D warnings
+          cargo test
+
   create-release:
     permissions:
       contents: write
     runs-on: ubuntu-22.04
+    needs: [pre-checks, test]
+    if: always() && needs.pre-checks.outputs.should_continue == 'true' && (needs.test.result == 'success' || needs.test.result == 'skipped')
     outputs:
       release_id: ${{ steps.create-release.outputs.result }}
       package_version: ${{ env.VERSION }}
-      latest_version: ${{ steps.latest-version.outputs.result }}
       changelog: ${{ steps.github_release_changelog.outputs.changelog }}
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
-      - name: setup node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: "npm"
 
       - name: Setup Git
         run: |
@@ -52,7 +136,7 @@ jobs:
 
       - name: Build changelog
         id: github_release_changelog
-        uses: mikepenz/release-changelog-builder-action@v3
+        uses: mikepenz/release-changelog-builder-action@v4
         with:
           configuration: ".github/changelog-configuration.json"
           toTag: "refs/heads/main"
@@ -60,12 +144,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: create release
+      - name: Create release
         id: create-release
         uses: actions/github-script@v7
         env:
           changelog: ${{ steps.github_release_changelog.outputs.changelog }}
         with:
+          retries: 3
+          retry-exempt-status-codes: 400,401,403,404,422
           script: |
             const { data } = await github.rest.repos.createRelease({
               owner: context.repo.owner,
@@ -74,6 +160,7 @@ jobs:
               name: `v${process.env.VERSION}`,
               body: process.env.changelog,
               draft: true,
+              prerelease: false
             })
             return data.id
 
@@ -87,39 +174,64 @@ jobs:
         include:
           - platform: "macos-latest"
             args: "--target aarch64-apple-darwin"
+            rust-target: "aarch64-apple-darwin"
           - platform: "macos-latest"
             args: "--target x86_64-apple-darwin"
+            rust-target: "x86_64-apple-darwin"
           - platform: "ubuntu-22.04"
             args: ""
+            rust-target: "x86_64-unknown-linux-gnu"
           - platform: "windows-latest"
             args: ""
+            rust-target: "x86_64-pc-windows-msvc"
 
     runs-on: ${{ matrix.platform }}
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: release
 
-      - name: setup node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
+          cache: "npm"
 
       - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
 
-      - name: install Rust stable
+      - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+          targets: ${{ matrix.rust-target }}
 
-      - name: install dependencies (ubuntu only)
+      - name: Cache Rust dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            src-tauri/target/
+          key: ${{ runner.os }}-${{ matrix.rust-target }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.rust-target }}-cargo-
+            ${{ runner.os }}-cargo-
+
+      - name: Install dependencies (Ubuntu only)
         if: matrix.platform == 'ubuntu-22.04'
         run: |
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf libsoup-3.0-dev libjavascriptcoregtk-4.1-dev libwebkit2gtk-4.1-dev
 
-      - name: install frontend dependencies
-        run: bun i
+      - name: Install frontend dependencies
+        run: bun install --frozen-lockfile
 
-      - uses: tauri-apps/tauri-action@v0
+      - name: Build application
+        uses: tauri-apps/tauri-action@v0
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
@@ -135,43 +247,63 @@ jobs:
       contents: write
     runs-on: ubuntu-22.04
     needs: [create-release, build-tauri]
+    if: success()
 
     steps:
-      - name: publish release
+      - name: Publish release
         id: publish-release
         uses: actions/github-script@v7
         env:
           release_id: ${{ needs.create-release.outputs.release_id }}
           PACKAGE_VERSION: ${{ needs.create-release.outputs.package_version }}
         with:
+          retries: 3
           script: |
-            github.rest.repos.updateRelease({
+            await github.rest.repos.updateRelease({
               owner: context.repo.owner,
               repo: context.repo.repo,
               release_id: process.env.release_id,
               draft: false,
             })
 
+      - name: Create release summary
+        run: |
+          echo "## 🎉 Release Published Successfully!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** v${{ needs.create-release.outputs.package_version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Release ID:** ${{ needs.create-release.outputs.release_id }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "[View Release](https://github.com/${{ github.repository }}/releases/tag/v${{ needs.create-release.outputs.package_version }})" >> $GITHUB_STEP_SUMMARY
+
   update-main-version:
     needs: publish-release
-    if: success()
     runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    if: success()
 
     steps:
       - uses: actions/checkout@v4
         with:
-            fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
-      - name: update main version
+      - name: Setup Git
         run: |
-          git fetch origin release:release  # 获取远程release分支
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Update main version
+        run: |
+          git fetch origin release:release
           git checkout main
-          git merge release --ff-only  # 或者使用 cherry-pick 获取版本更新的 commit
+          git merge release --ff-only
           git push origin main
+        continue-on-error: false
 
   cleanup-release-branch:
     needs: update-main-version
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     permissions:
       contents: write
     if: success()
@@ -180,38 +312,57 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            await github.rest.git.deleteRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: 'heads/release'
-            })
+            try {
+              await github.rest.git.deleteRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: 'heads/release'
+              })
+              console.log('Release branch deleted successfully')
+            } catch (error) {
+              console.log('Failed to delete release branch:', error.message)
+              // 不让这个失败阻止整个工作流
+            }
 
   upload_mirror_json:
     permissions:
       contents: write
     runs-on: ubuntu-22.04
-    needs: [create-release, publish-release]
+    needs: [create-release, update-main-version]
+    if: success()
     env:
       release_id: ${{ needs.create-release.outputs.release_id }}
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: get latest.json
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Get latest.json
         id: get-latest
         uses: actions/github-script@v7
         with:
+          retries: 3
           script: |
             const { owner, repo } = context.repo;
+
+            // 等待一段时间确保资产已上传
+            await new Promise(resolve => setTimeout(resolve, 30000));
+
             const assets = await github.rest.repos.listReleaseAssets({
               owner: owner,
               repo: repo,
               release_id: process.env.release_id,
               per_page: 50,
             });
-            const asset = assets.data.find((e) => e.name === 'latest.json');
 
-            if (!asset) throw new Error("latest.json was not found in release assets");
+            const asset = assets.data.find((e) => e.name === 'latest.json');
+            if (!asset) {
+              throw new Error("latest.json was not found in release assets");
+            }
 
             const data = await github.request(
               "GET /repos/{owner}/{repo}/releases/assets/{asset_id}",
@@ -227,38 +378,74 @@ jobs:
 
             return Buffer.from(data.data).toString()
 
-      - name: new mirror latest.json
+      - name: Generate mirror latest.json
         env:
           TEXT: ${{ steps.get-latest.outputs.result }}
         run: |
           cd .scripts
           node mirror-latest-json.js
 
-      - uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+      - name: Upload to mirror server
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
         with:
           username: thepoy
           server: thepoy.cc
           password: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
           local_path: ./.scripts/mirrors/*
           remote_path: /home/thepoy/app/lsar
-          sftpArgs: "-o ConnectTimeout=5"
+          sftpArgs: "-o ConnectTimeout=10 -o ServerAliveInterval=60"
+        continue-on-error: true
 
   delete-nightly-release-and-tag:
     permissions:
       contents: write
     runs-on: ubuntu-22.04
     needs: upload_mirror_json
+    if: success()
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: get old nightly release id
+      - name: Delete old nightly release
         run: |
-          release_id=$(curl -s 'https://api.github.com/repos/alley-rs/lsar/releases/tags/nightly' | awk -F'[{},:]+' '/^  "id"/ {print $2}' | xargs)
-          echo "RELEASE_ID=$release_id"  >> $GITHUB_ENV
-
-      - name: delete old nightly release
-        if: env.RELEASE_ID != ''
-        run: gh release delete nightly --cleanup-tag
+          # 检查是否存在 nightly release
+          if gh release view nightly >/dev/null 2>&1; then
+            echo "Deleting existing nightly release..."
+            gh release delete nightly --cleanup-tag --yes
+            echo "Nightly release deleted successfully"
+          else
+            echo "No nightly release found, skipping deletion"
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+
+  notify-completion:
+    runs-on: ubuntu-22.04
+    needs:
+      [
+        create-release,
+        build-tauri,
+        publish-release,
+        update-main-version,
+        upload_mirror_json,
+        delete-nightly-release-and-tag,
+      ]
+    if: always()
+    steps:
+      - name: Create workflow summary
+        run: |
+          echo "## 🚀 Release Workflow Completed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Workflow Status:** ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** ${{ needs.create-release.outputs.package_version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Bump type:** ${{ github.event.inputs.bump_type }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [[ "${{ needs.publish-release.result }}" == "success" ]]; then
+            echo "✅ **Release published successfully!**" >> $GITHUB_STEP_SUMMARY
+            echo "[View Release](https://github.com/${{ github.repository }}/releases/tag/v${{ needs.create-release.outputs.package_version }})" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Release failed or was cancelled**" >> $GITHUB_STEP_SUMMARY
+          fi
