@@ -95,7 +95,7 @@ const HistoryItem = (props: HistoryItemProps) => {
           <LazyTooltip
             content="解析本直播间"
             relationship="label"
-            positioning="after"
+            positioning="below"
             withArrow
           >
             <LazyButton
@@ -120,7 +120,7 @@ const HistoryItem = (props: HistoryItemProps) => {
           <LazyTooltip
             content="在浏览器中打开此直播间"
             relationship="label"
-            positioning="after"
+            positioning="below"
             withArrow
           >
             <LazyButton
@@ -138,7 +138,7 @@ const HistoryItem = (props: HistoryItemProps) => {
           <LazyTooltip
             content="删除本条历史记录"
             relationship="label"
-            positioning="after"
+            positioning="below"
             withArrow
           >
             <LazyButton
