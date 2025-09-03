@@ -26,10 +26,12 @@ impl Client {
                 .unwrap(),
         );
 
-        let client = Client {
-            inner: InnerClient::new(),
-            headers,
-        };
+        let inner = InnerClient::builder()
+            .http2_prior_knowledge()
+            .build()
+            .unwrap();
+
+        let client = Client { inner, headers };
         debug!("HttpClient instance created with default headers");
         client
     }
@@ -99,6 +101,18 @@ impl Client {
     pub async fn get_json<T: DeserializeOwned>(&self, url: &str) -> LsarResult<T> {
         info!("Sending GET request for JSON to: {}", url);
         let response = self.send_request(self.inner.get(url)).await?;
+
+        debug!("GET request successful, headers: {:?}", response.headers());
+
+        let content_type = response
+            .headers()
+            .get(CONTENT_TYPE)
+            .map(|v| v.to_str().unwrap().to_string())
+            .unwrap_or_default();
+
+        if !content_type.contains("application/json") {
+            return Err(LsarError::Other("响应内容不是 JSON 格式".to_string()));
+        }
 
         debug!(
             "GET request for JSON successful, status: {}",
