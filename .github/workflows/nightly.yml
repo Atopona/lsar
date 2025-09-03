@@ -43,7 +43,7 @@ jobs:
       # 使用 main 分支的包版本的 patch 作为 nightly 版本号
       - name: Bump version
         run: |
-          npm version ${{ github.event.inputs.bump_type }} --no-git-tag-version
+          npm version patch --no-git-tag-version
           VERSION=$(node -p "require('./package.json').version")
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "Bumping version to: $VERSION"
