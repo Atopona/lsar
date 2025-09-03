@@ -9,7 +9,7 @@ use reqwest::header::{COOKIE, UPGRADE_INSECURE_REQUESTS};
 use serde_json::Value;
 use url::Url;
 
-use crate::error::{LsarResult, RoomStateError};
+use crate::error::{HTTPError, LsarError, LsarResult, RoomStateError};
 use crate::network::http::Client;
 use crate::parsers::ParsedResult;
 use crate::platform::Platform;
@@ -175,7 +175,17 @@ impl DouyinParser {
         trace!("Requesting room info from: {}", api_url);
         info!("Fetching room information for room {}", self.room_id);
 
-        let response_data: Value = self.client.get_json(api_url.as_str()).await?;
+        let response_data: Value = match self.client.get_json(api_url.as_str()).await {
+            Ok(data) => data,
+            Err(e) => {
+                if let LsarError::Http(HTTPError::Decode) = e {
+                    // 解码错误时重新请求一次
+                    self.client.get_json(api_url.as_str()).await?
+                } else {
+                    return Err(e);
+                }
+            }
+        };
         debug!("Room info response received: {}", response_data);
 
         self.validate_api_response(&response_data)?;
