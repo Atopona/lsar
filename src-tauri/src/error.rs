@@ -10,7 +10,7 @@ pub(super) type LsarResult<T> = std::result::Result<T, LsarError>;
 pub(super) enum LsarError {
     #[error(transparent)]
     Sqlite(#[from] sqlx::Error),
-    #[error("http error: {0}")]
+    #[error(transparent)]
     Http(#[from] HTTPError),
     #[error(transparent)]
     Io(#[from] std::io::Error),
@@ -53,44 +53,29 @@ impl Serialize for LsarError {
     }
 }
 
-#[derive(Debug, Serialize)]
-enum HTTPErrorKind {
-    Connect,
+#[derive(Debug, thiserror::Error)]
+pub enum HTTPError {
+    #[error("连接错误")]
+    Connect(String),
+    #[error("请求超时")]
     Timeout,
+    #[error("响应体解码错误试")]
     Decode,
-    Other,
-}
-
-#[derive(Debug, thiserror::Error, Serialize)]
-pub struct HTTPError {
-    kind: HTTPErrorKind,
-}
-
-impl fmt::Display for HTTPError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", self.kind)
-    }
+    #[error("其他错误: {0}")]
+    Other(String),
 }
 
 // { kind: Request, url: "https://www.douyu.com/100", source: hyper_util::client::legacy::Error(Connect, ConnectError("dns error", Os { code: 11001, kind: Uncategorized, message: "不知道这样的主机。" })) }
 impl From<reqwest::Error> for HTTPError {
     fn from(value: reqwest::Error) -> Self {
         if value.is_connect() {
-            Self {
-                kind: HTTPErrorKind::Connect,
-            }
+            Self::Connect(value.to_string())
         } else if value.is_timeout() {
-            Self {
-                kind: HTTPErrorKind::Timeout,
-            }
+            Self::Timeout
         } else if value.is_decode() {
-            Self {
-                kind: HTTPErrorKind::Decode,
-            }
+            Self::Decode
         } else {
-            Self {
-                kind: HTTPErrorKind::Other,
-            }
+            Self::Other(value.to_string())
         }
     }
 }
