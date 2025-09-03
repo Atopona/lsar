@@ -1,4 +1,4 @@
-import { createMemo, createSignal, For, Show } from "solid-js";
+import { createSignal, For, Show } from "solid-js";
 import { AiFillApi } from "solid-icons/ai";
 
 import { LazyButton, LazyInput, LazyBadge, LazySpinner } from "~/lazy";
@@ -12,12 +12,8 @@ import * as styles from "./index.css";
 
 const Search = () => {
   const { setParsedResult } = useParsedResultContext();
-  const {
-    isHistoryItemParsing,
-    isSearchParsing,
-    onParse,
-    parsingHistoryItemIndex: parsingIndex,
-  } = useParsingContext();
+  const { isHistoryItemParsing, isSearchParsing, onParse } =
+    useParsingContext();
 
   const [input, setInput] = createSignal<string>();
   const [currentPlatform, setCurrentPlatform] = createSignal<Platform | null>(
