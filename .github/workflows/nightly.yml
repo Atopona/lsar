@@ -102,10 +102,36 @@ jobs:
 
       - uses: oven-sh/setup-bun@v1
 
+      - name: Cache frontend dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun
+            node_modules/
+          key: ${{ runner.os }}-frontend-${{ hashFiles('**/bun.lockb', '**/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-frontend-
+
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - name: Cache Rust dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            src-tauri/target/release/deps
+            src-tauri/target/release/build
+            src-tauri/target/${{ matrix.rust-target }}/release/deps
+            src-tauri/target/${{ matrix.rust-target }}/release/build
+          key: ${{ runner.os }}-${{ matrix.rust-target }}-rust-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.rust-target }}-rust-
 
       - name: install dependencies (ubuntu only)
         if: matrix.platform == 'ubuntu-22.04'
