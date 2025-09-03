@@ -110,10 +110,10 @@ pub fn create_main_window(
         .inner_size(WINDOW_WIDTH, WINDOW_HEIGHT);
 
     #[cfg(target_os = "macos")]
-    let win_builder = window_builder.title_bar_style(tauri::TitleBarStyle::Overlay);
+    let window_builder = window_builder.title_bar_style(tauri::TitleBarStyle::Overlay);
 
     // Attempt to build the window
-    match win_builder.build() {
+    match window_builder.build() {
         Ok(w) => {
             info!("Main application window created successfully");
             Ok(w)

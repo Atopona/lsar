@@ -47,7 +47,6 @@ fn set_windows_11_caption_color(window_handle: HWND, color_mode: &ColorMode) -> 
             &caption_color as *const u32 as *const std::ffi::c_void,
             std::mem::size_of::<u32>() as u32,
         )
-        .map_err(Into::into)
     }
 }
 
@@ -65,7 +64,7 @@ fn set_legacy_dark_mode(window_handle: HWND, color_mode: &ColorMode) -> Result<(
         )
         .map_err(|e| {
             error!(error = %e, "Failed to set legacy dark mode");
-            e.into()
+            e
         })
     }
 }

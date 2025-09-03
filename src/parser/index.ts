@@ -1,4 +1,7 @@
+import type { Setter } from "solid-js";
+
 import { error } from "~/command";
+
 import bilibili from "./bilibili";
 import douyin from "./douyin";
 import bigo from "./bigo";
