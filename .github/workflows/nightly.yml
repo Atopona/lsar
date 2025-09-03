@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-22.04
     outputs:
       changed: ${{ steps.changed-front.outputs.changed }}
-    
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -43,7 +43,7 @@ jobs:
       # 使用 main 分支的包版本的 patch 作为 nightly 版本号
       - name: Bump version
         run: |
-          npm version ${{ github.event.inputs.bump_type }} --no-git-tag-version
+          npm version patch --no-git-tag-version
           VERSION=$(node -p "require('./package.json').version")
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "Bumping version to: $VERSION"
@@ -57,7 +57,7 @@ jobs:
         if: env.RELEASE_ID != ''
         run: gh release delete nightly --cleanup-tag
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: create release
         id: create-release
@@ -116,10 +116,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-frontend-
 
-      - name: install Rust stable
+      - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+          targets: ${{ matrix.rust-target }}
 
       - name: Cache Rust dependencies
         uses: actions/cache@v4
@@ -137,11 +137,20 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-${{ matrix.rust-target }}-rust-
 
-      - name: install dependencies (ubuntu only)
+      - name: Cache system dependencies
+        if: matrix.platform == 'ubuntu-22.04'
+        uses: actions/cache@v4
+        with:
+          path: /var/cache/apt
+          key: ${{ runner.os }}-apt-${{ hashFiles('**/Cargo.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-apt-
+
+      - name: Install system dependencies (Ubuntu)
         if: matrix.platform == 'ubuntu-22.04'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf libsoup-3.0-dev libjavascriptcoregtk-4.1-dev libwebkit2gtk-4.1-dev
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 
       - name: install frontend dependencies
         run: bun i
