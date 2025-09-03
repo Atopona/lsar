@@ -95,6 +95,11 @@ jobs:
         with:
           node-version: lts/*
 
+      - name: Update package version
+        run: |
+          npm version patch --no-git-tag-version --no-git-tag-version
+          node -e "console.log('Updated package.json to version:', require('./package.json').version)"
+
       - uses: oven-sh/setup-bun@v1
 
       - name: Cache frontend dependencies
@@ -142,11 +147,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
-
-      - name: Update package version
-        run: |
-          npm version patch --no-git-tag-version --no-git-tag-version
-          node -e "console.log('Updated package.json to version:', require('./package.json').version)
 
       - name: install frontend dependencies
         run: bun i
