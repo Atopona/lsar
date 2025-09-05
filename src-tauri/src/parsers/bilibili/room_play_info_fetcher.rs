@@ -94,6 +94,9 @@ impl<'a> RoomPlayInfoFetcher<'a> {
         if live_status == 0 {
             return Err(RoomStateError::Offline.into());
         }
+        if live_status == 2 {
+            return Err(RoomStateError::IsReplay.into());
+        }
 
         let response: Response = serde_json::from_value(response_value)?;
 

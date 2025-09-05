@@ -1,7 +1,7 @@
 use reqwest::Client;
 use serde::Deserialize;
 
-use crate::error::LsarResult;
+use crate::error::{LsarResult, RoomStateError};
 
 #[derive(Debug, Deserialize)]
 struct RoomInfoData {
@@ -28,7 +28,7 @@ struct RoomInfo {
 
 #[derive(Debug, Deserialize)]
 struct RoomInfoResponse {
-    data: RoomInfoData,
+    data: Option<RoomInfoData>,
 }
 
 pub struct RoomInfoFetcher<'a> {
@@ -71,7 +71,14 @@ impl<'a> RoomInfoFetcher<'a> {
                 err_msg
             })?;
 
-        let data = response.data;
+        let data = match response.data {
+            Some(data) => data,
+            None => {
+                // NOTE: data 为 null 时可能是房间不存在，需要进一步验证
+                error!(room_id = self.room_id, "Room info not found");
+                return Err(RoomStateError::NotExists.into());
+            }
+        };
         debug!(
             "Successfully fetched room info. Title: {}, Anchor: {}, Category: {}",
             data.room_info.title, data.anchor_info.base_info.uname, data.room_info.area_name
