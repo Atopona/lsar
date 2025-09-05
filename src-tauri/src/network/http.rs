@@ -1,8 +1,7 @@
+use std::error::Error;
+
 use bytes::Bytes;
-use reqwest::{
-    header::{CONTENT_TYPE, USER_AGENT},
-    Body, Client as InnerClient, Response,
-};
+use reqwest::{header::CONTENT_TYPE, Body, Client as InnerClient, Response};
 use serde::{de::DeserializeOwned, Serialize};
 use tauri::http::{HeaderMap, HeaderName, HeaderValue};
 
@@ -18,16 +17,10 @@ impl Client {
     pub fn new() -> Self {
         trace!("Creating new HttpClient instance");
 
-        let mut headers = HeaderMap::new();
-        headers.insert(
-            USER_AGENT,
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36"
-                .parse()
-                .unwrap(),
-        );
+        let headers = HeaderMap::default();
 
         let inner = InnerClient::builder()
-            .http2_prior_knowledge()
+            .user_agent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36")
             .build()
             .unwrap();
 
@@ -56,7 +49,7 @@ impl Client {
             .send()
             .await
             .map_err(|e| {
-                error!("HTTP request failed: {}", e);
+                error!("HTTP request failed: {:?}", e.source());
                 LsarError::Http(e.into())
             })
     }
