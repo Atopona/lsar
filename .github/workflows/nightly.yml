@@ -137,8 +137,8 @@ jobs:
             return data.id;
 
   build-nightly:
-    needs: [check-nightly-conditions, create-nightly-release]
-    if: needs.check-nightly-conditions.outputs.should_build == 'true'
+    needs: create-nightly-release
+    if: needs.create-nightly-release.outputs.result == 'success'
     permissions:
       contents: write
     strategy:
@@ -234,7 +234,7 @@ jobs:
       contents: write
     runs-on: ubuntu-22.04
     needs: [check-nightly-conditions, create-nightly-release, build-nightly]
-    if: needs.check-nightly-conditions.outputs.should_build == 'true'
+    if: always() && needs.build-nightly.result == 'success'
 
     steps:
       - name: Publish nightly release
