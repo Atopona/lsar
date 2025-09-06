@@ -23,7 +23,8 @@ const Settings = () => {
 
   const [lsarConfig, setLsarConfig] = createSignal(defaultConfig());
 
-  createEffect(() => setLsarConfig(defaultConfig()));
+  // 当 showSettings 为 true 时，更新 lsarConfig
+  createEffect(() => showSettings() && setLsarConfig(defaultConfig()));
 
   createEffect(async () => {
     console.log(lsarConfig());
