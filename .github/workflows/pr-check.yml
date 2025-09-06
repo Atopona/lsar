@@ -28,7 +28,7 @@ jobs:
   # 检测文件变化类型
   detect-changes:
     name: "Detect Changes"
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       frontend: ${{ steps.changes.outputs.frontend }}
       backend: ${{ steps.changes.outputs.backend }}
@@ -59,7 +59,7 @@ jobs:
 
   frontend-check:
     name: "Frontend Code Check"
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: detect-changes
     if: needs.detect-changes.outputs.frontend == 'true' || needs.detect-changes.outputs.workflow == 'true'
     steps:
@@ -106,7 +106,7 @@ jobs:
           - platform: "macos-latest"
             args: "--target x86_64-apple-darwin"
             rust-target: "x86_64-apple-darwin"
-          - platform: "ubuntu-22.04"
+          - platform: "ubuntu-24.04"
             args: ""
             rust-target: "x86_64-unknown-linux-gnu"
           - platform: "windows-latest"
@@ -139,7 +139,7 @@ jobs:
             ${{ runner.os }}-${{ matrix.rust-target }}-rust-
 
       - name: Cache system dependencies
-        if: matrix.platform == 'ubuntu-22.04'
+        if: matrix.platform == 'ubuntu-24.04'
         uses: actions/cache@v4
         with:
           path: /var/cache/apt
@@ -148,7 +148,7 @@ jobs:
             ${{ runner.os }}-apt-
 
       - name: Install system dependencies (Ubuntu)
-        if: matrix.platform == 'ubuntu-22.04'
+        if: matrix.platform == 'ubuntu-24.04'
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
@@ -172,7 +172,7 @@ jobs:
   # 自动合并PR
   auto-merge:
     name: "Auto Merge PR"
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: [detect-changes, frontend-check, rust-check]
     if: always() && !cancelled() && !failure()
     permissions:

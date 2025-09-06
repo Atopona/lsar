@@ -23,7 +23,7 @@ env:
 
 jobs:
   pre-checks:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       should_continue: ${{ steps.check.outputs.should_continue }}
     steps:
@@ -51,7 +51,7 @@ jobs:
   create-release:
     permissions:
       contents: write
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: pre-checks
     if: always() && needs.pre-checks.outputs.should_continue == 'true'
     outputs:
@@ -133,7 +133,7 @@ jobs:
           - platform: "macos-latest"
             args: "--target x86_64-apple-darwin"
             rust-target: "x86_64-apple-darwin"
-          - platform: "ubuntu-22.04"
+          - platform: "ubuntu-24.04"
             args: ""
             rust-target: "x86_64-unknown-linux-gnu"
           - platform: "windows-latest"
@@ -188,7 +188,7 @@ jobs:
             ${{ runner.os }}-${{ matrix.rust-target }}-rust-
 
       - name: Install dependencies (Ubuntu only)
-        if: matrix.platform == 'ubuntu-22.04'
+        if: matrix.platform == 'ubuntu-24.04'
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
@@ -211,7 +211,7 @@ jobs:
   publish-release:
     permissions:
       contents: write
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: [create-release, build-tauri]
     if: success()
 
@@ -243,7 +243,7 @@ jobs:
 
   update-main-version:
     needs: publish-release
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
     if: success()
@@ -269,7 +269,7 @@ jobs:
 
   cleanup-release-branch:
     needs: update-main-version
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
     if: success()
@@ -293,7 +293,7 @@ jobs:
   upload_mirror_json:
     permissions:
       contents: write
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: [create-release, update-main-version]
     if: success()
     env:
@@ -365,7 +365,7 @@ jobs:
   delete-nightly-release-and-tag:
     permissions:
       contents: write
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: upload_mirror_json
     if: success()
 
@@ -387,7 +387,7 @@ jobs:
         continue-on-error: true
 
   notify-completion:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs:
       [
         create-release,
