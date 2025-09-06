@@ -3,7 +3,7 @@ name: "Nightly Build"
 on:
   schedule:
     # 每天UTC时间16点执行，即北京时间0点
-    - cron: '0 16 * * *'
+    - cron: "0 16 * * *"
   workflow_dispatch: # 允许手动触发
 
 env:
@@ -125,9 +125,13 @@ jobs:
 
   delete-existing-nightly:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: write
     needs: check-nightly-conditions
     if: needs.check-nightly-conditions.outputs.should_build == 'true' && needs.check-nightly-conditions.outputs.has_nightly == 'true'
     steps:
+      - uses: actions/checkout@v4
+
       - name: Delete existing nightly release and tag
         run: |
           echo "Deleting existing nightly release and tag..."
@@ -141,7 +145,7 @@ jobs:
       contents: write
     runs-on: ubuntu-24.04
     needs: [check-nightly-conditions, delete-existing-nightly]
-    if: always() && needs.check-nightly-conditions.outputs.should_build == 'true'
+    if: always() && needs.check-nightly-conditions.outputs.should_build == 'true' && needs.delete-existing-nightly.result != 'failure'
     outputs:
       release_id: ${{ steps.create-release.outputs.result }}
       build_date: ${{ steps.date.outputs.date }}
