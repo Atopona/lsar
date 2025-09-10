@@ -66,7 +66,7 @@ pub enum HTTPError {
     Connect(String),
     #[error("请求超时")]
     Timeout,
-    #[error("响应体解码错误试")]
+    #[error("响应体解码错误，可重试几次，若仍然无法解决，请去 Github 仓库提 issue 反馈")]
     Decode,
     #[error("其他错误: {0}")]
     Other(String),
