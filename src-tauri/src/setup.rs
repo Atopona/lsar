@@ -33,7 +33,7 @@ pub fn setup_logging() {
         .with_max_level(Level::TRACE)
         .with_file(true)
         .with_line_number(true)
-        .with_env_filter("lsar_lib")
+        .with_env_filter("lsar")
         .with_target(false)
         .with_timer(timer)
         .with_writer(writer);
