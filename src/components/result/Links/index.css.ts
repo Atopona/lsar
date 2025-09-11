@@ -20,10 +20,10 @@ export const itemLinkContainer = style({
   justifyContent: "start",
   overflow: "hidden",
   whiteSpace: "nowrap",
+  textOverflow: "ellipsis",
 });
 
 export const itemLink = style({
-  textOverflow: "ellipsis",
   maxWidth: "100%",
 });
 

@@ -27,7 +27,6 @@ const Settings = () => {
   createEffect(() => showSettings() && setLsarConfig(defaultConfig()));
 
   createEffect(async () => {
-    console.log(lsarConfig());
     if (!defaultConfig() || defaultConfig()?.player.path !== "") return;
 
     const paths = await getPlayerPaths();
@@ -38,11 +37,11 @@ const Settings = () => {
         prev && {
           ...prev,
           player: { path: paths[0], args: [] },
-        },
+        }
     );
 
     toast.success(
-      "已自动选择播放器，如果此播放器不是你想使用的播放器，请点击“重新选择”按钮自行选择",
+      "已自动选择播放器，如果此播放器不是你想使用的播放器，请点击“重新选择”按钮自行选择"
     );
   });
 
@@ -84,7 +83,7 @@ const Settings = () => {
                 prev && {
                   ...prev,
                   dark_mode: mode,
-                },
+                }
             )
           }
         />
@@ -97,7 +96,7 @@ const Settings = () => {
                 prev && {
                   ...prev,
                   player: { ...prev.player, path },
-                },
+                }
             )
           }
         />
@@ -110,7 +109,7 @@ const Settings = () => {
                 prev && {
                   ...prev,
                   platform: { ...prev.platform, bilibili: { cookie } },
-                },
+                }
             )
           }
         />
