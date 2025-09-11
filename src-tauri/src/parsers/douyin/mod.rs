@@ -73,11 +73,19 @@ impl DouyinParser {
         let state_json = state_str.replace("\\\"", "\"").replace("\\\\\"", "\\\"");
         let state: Value = serde_json::from_str(&state_json)?;
         let room_info = &state["roomStore"]["roomInfo"];
-        let nickname = room_info["anchor"]["nickname"]
-            .as_str()
-            .unwrap()
-            .to_string();
-        let stream_data: StreamData = serde_json::from_value(room_info["room"].clone())?;
+        let anchor = &room_info["anchor"];
+        if anchor.is_null() {
+            return Err(RoomStateError::NotExists.into());
+        }
+
+        let nickname = anchor["nickname"].as_str().unwrap().to_string();
+        let room = &room_info["room"];
+
+        if room.is_null() {
+            return Err(RoomStateError::Offline.into());
+        }
+
+        let stream_data: StreamData = serde_json::from_value(room.clone())?;
 
         let room_info = RoomInfo {
             data: RoomData {
@@ -100,6 +108,9 @@ impl DouyinParser {
         let partition_info = &room_info.data.partition_road_map;
 
         debug!("Room status: {}", room_data.status);
+        if room_data.status == 4 {
+            return Err(RoomStateError::Offline.into());
+        }
 
         let stream_urls = self.extract_stream_urls(room_data)?;
         let category = partition_info
