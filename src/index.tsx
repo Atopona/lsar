@@ -9,7 +9,7 @@ import { AppContextProvider } from "./contexts/AppContext";
 import "fluent-solid/lib/themes/styles/var.css";
 import "fluent-solid/lib/themes/styles/theme.css";
 
-if (import.meta.env.MODE === "production") {
+if (import.meta.env.TAURI_ENV_DEBUG !== "true") {
   document.addEventListener("contextmenu", (event) => event.preventDefault());
 }
 
@@ -19,5 +19,5 @@ render(
       <App />
     </AppContextProvider>
   ),
-  document.getElementById("root") as HTMLElement,
+  document.getElementById("root") as HTMLElement
 );
