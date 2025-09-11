@@ -16,15 +16,29 @@ import { useSettingsContext } from "~/contexts/SettingsContext";
 
 import * as styles from "./index.css";
 
+const DEFAULT_CONFIG: Config = {
+  dark_mode: "system",
+  transparent: false,
+  player: {
+    path: "",
+    args: [],
+  },
+  platform: { bilibili: { cookie: "" } },
+};
+
 const Settings = () => {
   const toast = useToast();
   const { config: defaultConfig, refetchConfig } = useConfigContext();
   const { showSettings, setShowSettings } = useSettingsContext();
 
-  const [lsarConfig, setLsarConfig] = createSignal(defaultConfig());
+  const [lsarConfig, setLsarConfig] = createSignal(
+    defaultConfig() ?? DEFAULT_CONFIG
+  );
 
-  // 当 showSettings 为 true 时，更新 lsarConfig
-  createEffect(() => showSettings() && setLsarConfig(defaultConfig()));
+  createEffect(() => {
+    if (!defaultConfig()) return;
+    showSettings() && setLsarConfig(defaultConfig()!);
+  });
 
   createEffect(async () => {
     if (!defaultConfig() || defaultConfig()?.player.path !== "") return;
@@ -115,10 +129,7 @@ const Settings = () => {
         />
 
         <div class={styles.buttons}>
-          <LazyButton
-            onClick={onCancel}
-            disabled={!defaultConfig()?.player.path}
-          >
+          <LazyButton onClick={onCancel} disabled={!lsarConfig()?.player.path}>
             取消
           </LazyButton>
 
