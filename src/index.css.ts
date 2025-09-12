@@ -10,6 +10,14 @@ globalStyle(":root", {
   fontFamily: vars.fontFamilyBase,
   color: themeContract.colorNeutralForeground1,
   backgroundColor: themeContract.colorNeutralBackground1,
+
+  /* 桌面端默认禁止文本选择 */
+  WebkitUserSelect: "none",
+  userSelect: "none",
+});
+
+globalStyle("*:not(input):not(textarea)", {
+  cursor: "default !important",
 });
 
 globalStyle('[data-theme="dark"]', {
