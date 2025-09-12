@@ -1,4 +1,5 @@
 import { style } from "@vanilla-extract/css";
+import { themeContract } from "fluent-solid/lib/themes";
 
 export const titlebar = style({
   height: "28px", // 与 macOS 标题栏高度一致
@@ -8,4 +9,14 @@ export const titlebar = style({
   left: 0,
   zIndex: 9999,
   position: "fixed",
+  transition: "boxShadow 0.1s ease-in-out",
+
+  selectors: {
+    "&:hover": {
+      boxShadow: themeContract.shadow2,
+    },
+    "&:active": {
+      boxShadow: themeContract.shadow4,
+    },
+  },
 });
