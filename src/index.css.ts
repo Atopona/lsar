@@ -44,7 +44,6 @@ globalStyle("html, body", {
 });
 
 globalStyle("#root", {
-  paddingTop: "28px", // 与 macOS 标题栏高度一致
   height: "100vh",
   width: "100vw",
   overflow: "hidden",

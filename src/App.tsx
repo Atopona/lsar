@@ -37,7 +37,7 @@ const App = () => {
       <div
         classList={{
           [styles.container]: true,
-          [styles.notMacos]: import.meta.env.TAURI_ENV_PLATFORM !== "darwin",
+          [styles.isMacos]: import.meta.env.TAURI_ENV_PLATFORM === "darwin",
         }}
       >
         <History />
