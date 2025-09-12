@@ -2,6 +2,7 @@ import { style } from "@vanilla-extract/css";
 
 export const container = style({
   display: "flex",
+  position: "relative",
 });
 
 export const rightContainer = style({
@@ -13,11 +14,11 @@ export const rightContainer = style({
 });
 
 export const settingsButton = style({
-  position: "fixed",
-  right: 20,
-  top: 30,
+  position: "absolute",
+  right: 10,
+  top: 12,
 });
 
 export const isMacos = style({
-  paddingTop: "28px",
+  marginTop: "28px",
 });
