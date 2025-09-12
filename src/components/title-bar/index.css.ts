@@ -7,4 +7,5 @@ export const titlebar = style({
   top: 0,
   left: 0,
   zIndex: 9999,
+  position: "fixed",
 });

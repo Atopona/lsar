@@ -18,7 +18,6 @@ import * as styles from "./index.css";
 
 const DEFAULT_CONFIG: Config = {
   dark_mode: "system",
-  transparent: false,
   player: {
     path: "",
     args: [],
