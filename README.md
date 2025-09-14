@@ -4,7 +4,6 @@
 <a href="https://github.com/alley-rs/lsar/releases/latest"><img src="https://img.shields.io/github/downloads/alley-rs/lsar/total.svg?style=flat-square" alt="GitHub releases"></a>
 </p>
 
-
 # LSAR
 
 图形化的直播解析器。
@@ -20,6 +19,9 @@
 ![主界面](docs/images/light.avif)
 
 ![主界面](docs/images/dark.avif)
+
+> [!NOTE]
+> 如果使用正式版本时遇到了 BUG，可尝试下载 [nightly](https://github.com/alley-rs/lsar/releases/tag/nightly) 版本， nightly 版本会包含最新的功能和修复的 BUG。
 
 ## 隐私收集
 
