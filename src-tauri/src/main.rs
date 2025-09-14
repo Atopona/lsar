@@ -13,6 +13,7 @@ mod parsers;
 mod path;
 mod platform;
 mod setup;
+mod tracker;
 #[cfg(all(desktop, not(debug_assertions)))]
 mod update;
 mod utils;
@@ -80,6 +81,8 @@ fn main() {
     info!("Architecture: {}", env::consts::ARCH);
 
     info!("Initializing application");
+
+    tauri::async_runtime::spawn(async { tracker::track().await });
 
     tauri::Builder::default()
         .plugin(tauri_plugin_process::init())
