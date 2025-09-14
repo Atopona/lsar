@@ -1,7 +1,10 @@
-import { evalResult } from "~/command";
-import LiveStreamParser from "../base";
 import { listen } from "@tauri-apps/api/event";
-import { invoke } from "@tauri-apps/api/core";
+
+import { evalResult } from "~/command";
+import { parseDouyu } from "~/commands/parser";
+
+import LiveStreamParser from "../base";
+
 import {
   INVALID_INPUT,
   parseRoomID,
@@ -20,9 +23,7 @@ class DouyuParser extends LiveStreamParser {
     });
 
     try {
-      const result = await invoke<ParsedResult>("parse_douyu", {
-        roomId: this.roomID,
-      });
+      const result = await parseDouyu(this.roomID);
       return result;
     } catch (e) {
       return Error(String(e));
@@ -33,7 +34,7 @@ class DouyuParser extends LiveStreamParser {
 }
 
 export default function createDouyuParser(
-  input: string | number,
+  input: string | number
 ): DouyuParser | Error {
   let roomID = parseRoomID(input);
   // 斗鱼的房间号可能在查询参数 rid 中

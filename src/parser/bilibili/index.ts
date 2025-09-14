@@ -1,5 +1,6 @@
+import { parseBilibili } from "~/commands/parser";
+
 import LiveStreamParser from "../base";
-import { invoke } from "@tauri-apps/api/core";
 
 class BilibiliParser extends LiveStreamParser {
   cookie: string;
@@ -12,11 +13,7 @@ class BilibiliParser extends LiveStreamParser {
 
   async parse(): Promise<ParsedResult | Error> {
     try {
-      const result = await invoke<ParsedResult>("parse_bilibili", {
-        roomId: this.roomID,
-        cookie: this.cookie,
-        url: this.url || null,
-      });
+      const result = await parseBilibili(this.roomID, this.cookie, this.url);
       return result;
     } catch (e) {
       return Error(String(e));
@@ -26,7 +23,7 @@ class BilibiliParser extends LiveStreamParser {
 
 export default function createBilibiliParser(
   input: string | number,
-  cookie: string,
+  cookie: string
 ) {
   let roomID: number | undefined;
   let url: string | undefined;

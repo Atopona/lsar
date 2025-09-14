@@ -1,5 +1,6 @@
+import { parseHuya } from "~/commands/parser";
+
 import LiveStreamParser from "../base";
-import { invoke } from "@tauri-apps/api/core";
 
 class HuyaParser extends LiveStreamParser {
   baseURL = "https://m.huya.com/";
@@ -12,10 +13,7 @@ class HuyaParser extends LiveStreamParser {
 
   async parse(): Promise<ParsedResult | Error> {
     try {
-      const result = await invoke<ParsedResult>("parse_huya", {
-        roomId: this.roomID || null,
-        url: this.url,
-      });
+      const result = await parseHuya(this.roomID, this.url);
       return result;
     } catch (error) {
       return error instanceof Error ? error : new Error(String(error));
@@ -24,7 +22,7 @@ class HuyaParser extends LiveStreamParser {
 }
 
 export default function createHuyaParser(
-  input: string | number,
+  input: string | number
 ): HuyaParser | Error {
   let roomID: number | undefined;
   let url: string | undefined;

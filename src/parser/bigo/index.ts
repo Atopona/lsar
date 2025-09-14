@@ -1,6 +1,8 @@
+import { parseBigo } from "~/commands/parser";
+
 import LiveStreamParser from "../base";
+
 import { parseRoomID } from "../utils";
-import { invoke } from "@tauri-apps/api/core";
 
 class BigoParser extends LiveStreamParser {
   constructor(roomID: number) {
@@ -9,9 +11,7 @@ class BigoParser extends LiveStreamParser {
 
   async parse(): Promise<ParsedResult | Error> {
     try {
-      const result = await invoke<ParsedResult>("parse_bigo", {
-        roomId: this.roomID,
-      });
+      const result = await parseBigo(this.roomID);
       return result;
     } catch (e) {
       return Error(String(e));
