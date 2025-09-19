@@ -41,8 +41,6 @@ impl<'a> HTMLFetcher<'a> {
             err_msg
         })?;
 
-        println!("Fetched HTML length: {}", html);
-
         debug!(
             "Successfully fetched HTML. Length: {} characters",
             html.len()
