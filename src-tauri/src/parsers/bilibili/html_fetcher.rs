@@ -16,23 +16,12 @@ impl<'a> HTMLFetcher<'a> {
     pub async fn fetch(&self) -> LsarResult<String> {
         debug!("Fetching page HTML from: {}", self.url);
         let mut headers = HeaderMap::new();
-        headers.insert("Host", HeaderValue::from_static("live.bilibili.com"));
         headers.insert(
             USER_AGENT,
             HeaderValue::from_static(
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0",
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
             ),
         );
-        headers.insert("Accept", HeaderValue::from_static("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"));
-        headers.insert("Accept-Language", HeaderValue::from_static("zh-CN"));
-        headers.insert("Connection", HeaderValue::from_static("keep-alive"));
-        headers.insert("Upgrade-Insecure-Requests", HeaderValue::from_static("1"));
-        headers.insert("Sec-Fetch-Dest", HeaderValue::from_static("document"));
-        headers.insert("Sec-Fetch-Mode", HeaderValue::from_static("navigate"));
-        headers.insert("Sec-Fetch-Site", HeaderValue::from_static("none"));
-        headers.insert("Sec-Fetch-User", HeaderValue::from_static("?1"));
-        headers.insert("DNT", HeaderValue::from_static("1"));
-        headers.insert("Sec-GPC", HeaderValue::from_static("1"));
 
         let response = self
             .client
@@ -51,6 +40,8 @@ impl<'a> HTMLFetcher<'a> {
             error!("{}", err_msg);
             err_msg
         })?;
+
+        println!("Fetched HTML length: {}", html);
 
         debug!(
             "Successfully fetched HTML. Length: {} characters",
