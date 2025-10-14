@@ -1,5 +1,7 @@
 import { createMemo, Show } from "solid-js";
-import { AiFillApi, AiFillChrome, AiFillDelete } from "solid-icons/ai";
+
+import { AiFillChrome, AiFillDelete } from "solid-icons/ai";
+import { TiFlash } from "solid-icons/ti";
 
 import { deleteHistoryByID, open } from "~/command";
 import {
@@ -80,7 +82,7 @@ const HistoryItem = (props: HistoryItemProps) => {
                   when={!isParsing()}
                   fallback={<LazySpinner size="extra-tiny" />}
                 >
-                  <AiFillApi font-size={BUTTON_ICON_FONT_SIZE} />
+                  <TiFlash font-size={BUTTON_ICON_FONT_SIZE} />
                 </Show>
               }
               appearance="transparent"

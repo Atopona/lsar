@@ -1,5 +1,6 @@
 import { createSignal, For, Show } from "solid-js";
-import { AiFillApi } from "solid-icons/ai";
+
+import { TiFlash } from "solid-icons/ti";
 
 import { LazyButton, LazyInput, LazyBadge, LazySpinner } from "~/lazy";
 
@@ -97,7 +98,7 @@ const Search = () => {
                 when={!isSearchParsing()}
                 fallback={<LazySpinner size="extra-tiny" />}
               >
-                <AiFillApi />
+                <TiFlash />
               </Show>
             }
             isLoading={isSearchParsing()}
