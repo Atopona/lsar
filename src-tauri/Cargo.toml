@@ -87,5 +87,6 @@ log-color = ["tracing-subscriber/ansi"]
 panic = "abort"
 codegen-units = 1
 lto = true
-opt-level = "s"
+incremental = true
+opt-level = "z"
 strip = true
