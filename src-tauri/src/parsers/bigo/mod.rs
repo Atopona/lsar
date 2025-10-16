@@ -64,6 +64,6 @@ impl Parser for BigoParser {
 
 #[tauri::command]
 pub async fn parse_bigo(room_id: u64) -> LsarResult<ParsedResult> {
-    let mut douyu = BigoParser::new(room_id);
-    douyu.parse().await
+    let mut bigo = BigoParser::new(room_id);
+    bigo.parse().await
 }
