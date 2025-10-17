@@ -19,7 +19,7 @@ export const parseRoomID = (input: string | number): number | Error => {
 
   try {
     const url = new URL(input);
-    const basepath = url.pathname.slice(1);
+    const basepath = url.pathname.split("/")[1];
     const n = Number(basepath);
     return Number.isNaN(n) ? INVALID_INPUT : n;
   } catch {

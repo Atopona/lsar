@@ -166,6 +166,27 @@ impl Client {
         Ok(json)
     }
 
+    pub async fn post_plain<D: DeserializeOwned>(&self, url: &str, body: &str) -> LsarResult<D> {
+        info!("Sending POST request with plain text body to: {}", url);
+
+        let request = self
+            .inner
+            .post(url)
+            .body(body.to_owned())
+            .header(CONTENT_TYPE, "text/plain;charset=UTF-8");
+
+        let response = self.send_request(request).await?;
+
+        debug!("POST request successful, status: {}", response.status());
+        let json = response.json().await.map_err(|e| {
+            error!("Failed to parse JSON response from POST request: {}", e);
+            LsarError::Http(e.into())
+        })?;
+
+        trace!("JSON response from POST request parsed successfully");
+        Ok(json)
+    }
+
     pub async fn post_json<T: DeserializeOwned, S: Serialize + ?Sized>(
         &self,
         url: &str,

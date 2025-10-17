@@ -3,6 +3,7 @@ mod bilibili;
 mod douyin;
 mod douyu;
 mod huya;
+mod yy;
 
 use serde::Serialize;
 
@@ -11,6 +12,7 @@ pub use self::bilibili::parse_bilibili;
 pub use self::douyin::parse_douyin;
 pub use self::douyu::parse_douyu;
 pub use self::huya::parse_huya;
+pub use self::yy::parse_yy;
 
 use crate::{error::LsarResult, platform::Platform};
 
