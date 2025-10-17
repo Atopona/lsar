@@ -124,6 +124,11 @@ impl BilibiliParser {
             .nth(1)
             .and_then(|s| s.split('"').next())
             .or_else(|| {
+                html.split(r#""room_id":"#)
+                    .nth(1)
+                    .and_then(|s| s.split(',').next())
+            })
+            .or_else(|| {
                 html.split(r#""roomid":"#)
                     .nth(1)
                     .and_then(|s| s.split(',').next())
