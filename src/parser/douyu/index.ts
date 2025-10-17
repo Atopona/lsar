@@ -34,8 +34,11 @@ class DouyuParser extends LiveStreamParser {
 }
 
 export default function createDouyuParser(
-  input: string | number
+  input: string | number,
 ): DouyuParser | Error {
+  // 斗鱼beta版在路径中会有一个`/beta`前缀，直接替换掉
+  if (typeof input === "string") input = input.toString().replace("/beta", "");
+
   let roomID = parseRoomID(input);
   // 斗鱼的房间号可能在查询参数 rid 中
   if (roomID instanceof Error) {

@@ -14,12 +14,15 @@ export const getSecondLevelDomain = (url: string) => {
   return domainParts[domainParts.length - 2];
 };
 
-export const parseRoomID = (input: string | number): number | Error => {
+export const parseRoomID = (
+  input: string | number,
+  target_path_index: number = 1,
+): number | Error => {
   if (typeof input === "number") return input;
 
   try {
     const url = new URL(input);
-    const basepath = url.pathname.split("/")[1];
+    const basepath = url.pathname.split("/")[target_path_index];
     const n = Number(basepath);
     return Number.isNaN(n) ? INVALID_INPUT : n;
   } catch {
