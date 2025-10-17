@@ -33,7 +33,7 @@ use crate::error::LsarResult;
 use crate::eval::eval_result;
 use crate::http::{get, post};
 use crate::log::{debug, error, info, trace, warn};
-use crate::parsers::{parse_bigo, parse_bilibili, parse_douyin, parse_douyu, parse_huya};
+use crate::parsers::{parse_bigo, parse_bilibili, parse_douyin, parse_douyu, parse_huya, parse_yy};
 use crate::path::get_player_paths;
 use crate::setup::{setup_app, setup_logging};
 use crate::utils::md5;
@@ -119,6 +119,7 @@ fn main() {
             parse_huya,
             parse_douyin,
             parse_bilibili,
+            parse_yy,
             get_player_paths,
             #[cfg(windows)]
             set_titlebar_color_mode

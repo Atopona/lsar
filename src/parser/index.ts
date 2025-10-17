@@ -7,6 +7,7 @@ import douyin from "./douyin";
 import bigo from "./bigo";
 import douyu from "./douyu";
 import huya from "./huya";
+import yy from "./yy";
 import type LiveStreamParser from "./base";
 import { getSecondLevelDomain, WRONG_SECOND_LEVEL_DOMAIN } from "./utils";
 
@@ -37,6 +38,12 @@ export const platforms = {
     roomBaseURL: "https://live.douyin.com/",
     logo: "https://p-pc-weboff.byteimg.com/tos-cn-i-9r5gewecjs/favicon.png",
     parser: douyin,
+  },
+  yy: {
+    label: "YY",
+    roomBaseURL: "https://www.yy.com/",
+    logo: "https://web.yystatic.com/project/yycom_header/pc/assets/logo.png",
+    parser: yy,
   },
   bigo: {
     label: "Bigo",

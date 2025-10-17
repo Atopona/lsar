@@ -3,3 +3,4 @@ export { parseBilibili } from "./bili";
 export { parseDouyin } from "./douyin";
 export { parseDouyu } from "./douyu";
 export { parseHuya } from "./huya";
+export { parseYY } from "./yy";

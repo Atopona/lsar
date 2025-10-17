@@ -47,6 +47,8 @@ pub(super) enum LsarError {
     VarError(#[from] std::env::VarError),
     #[error(transparent)]
     ParseInt(#[from] std::num::ParseIntError),
+    #[error("url decode error: {0}")]
+    UrlDeocde(String),
     #[error("{0}")]
     Other(String),
 }
@@ -133,6 +135,9 @@ pub(super) enum MissKeyFieldError {
     Title,
     #[error("解析主播名失败")]
     AnchorName,
+    /// 不是所有平台都支持分类，此成员仅用于部分平台
+    #[error("解析分类失败")]
+    Category,
     #[error("解析签名函数失败")]
     SignatureFunction,
     #[error("解析随机数失败")]
