@@ -54,8 +54,7 @@ jobs:
             args: ""
             rust-target: "x86_64-unknown-linux-gnu"
 
-    runs-on: ${{ matrix.platform }}
-    if: github.event.inputs.platform == 'all' || github.event.inputs.platform == matrix.name
+    runs-on: ${{ matrix.platform }}if: github.event.inputs.platform == 'all' || github.event.inputs.platform == matrix.name
     timeout-minutes: 60
 
     steps:
@@ -117,9 +116,6 @@ jobs:
 
       - name: Build Tauri application
         run: bun run tauri build ${{ matrix.args }}
-        env:
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
 
       - name: List build artifacts (Debug)
         if: github.event.inputs.debug_mode == 'true'
